@@ -99,3 +99,4 @@ C:\Users\phong\source\repos\ponpon2k5\convenience_store_manage_ADO.NET\obj\Debug
 C:\Users\phong\source\repos\ponpon2k5\convenience_store_manage_ADO.NET\obj\Debug\net8.0-windows\Convenience_Store_Management.pdb
 C:\Users\phong\source\repos\ponpon2k5\convenience_store_manage_ADO.NET\obj\Debug\net8.0-windows\Convenience_Store_Management.genruntimeconfig.cache
 C:\Users\phong\source\repos\ponpon2k5\convenience_store_manage_ADO.NET\obj\Debug\net8.0-windows\ref\Convenience_Store_Management.dll
+C:\Users\phong\source\repos\ponpon2k5\convenience_store_manage_ADO.NET\obj\Debug\net8.0-windows\Convenience_Store_Management.FormReg.resources
