@@ -7,7 +7,7 @@ namespace Convenience_Store_Management.DAL
 {
     public class ConnectDB
     {
-        public readonly string strCon = "Data Source=.;Initial Catalog=QuanLyBanHang;Integrated Security=True;TrustServerCertificate=True";
+        public readonly string strCon = "Data Source=(local);Initial Catalog=QuanLyBanHang;Integrated Security=True;TrustServerCertificate=True";
 
         public SqlConnection conn = null;
         public SqlCommand comm = null;
