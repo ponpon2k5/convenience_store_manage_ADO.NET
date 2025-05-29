@@ -17,8 +17,21 @@ namespace QLBanHang_3Tang.BS_layer
         // Phương thức kiểm tra đăng nhập
         public bool KiemTraDangNhap(string tenDangNhap, string matKhau, string loaiTaiKhoan, ref string error)
         {
-            // Kiểm tra trong bảng DANG_NHAP
-            string sql = $"SELECT COUNT(*) FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}' AND MatKhau = '{matKhau}' AND LoaiTaiKhoan = '{loaiTaiKhoan}'";
+            string sql = "";
+            if (loaiTaiKhoan == "Employee")
+            {
+                sql = $"SELECT COUNT(*) FROM DANG_NHAP_NHAN_VIEN WHERE TenDangNhap = '{tenDangNhap}' AND MatKhau = '{matKhau}'";
+            }
+            else if (loaiTaiKhoan == "Customer")
+            {
+                sql = $"SELECT COUNT(*) FROM DANG_NHAP_KHACH_HANG WHERE TenDangNhap = '{tenDangNhap}' AND MatKhau = '{matKhau}'";
+            }
+            else
+            {
+                error = "Loại tài khoản không hợp lệ.";
+                return false;
+            }
+
             try
             {
                 DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);
@@ -35,16 +48,24 @@ namespace QLBanHang_3Tang.BS_layer
             }
         }
 
-        // Phương thức kiểm tra tên đăng nhập đã tồn tại chưa
+        // Phương thức kiểm tra tên đăng nhập đã tồn tại chưa (trong cả 2 bảng)
         public bool KiemTraTonTaiTenDangNhap(string tenDangNhap, ref string error)
         {
-            string sql = $"SELECT COUNT(*) FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}'";
+            string sqlEmployee = $"SELECT COUNT(*) FROM DANG_NHAP_NHAN_VIEN WHERE TenDangNhap = '{tenDangNhap}'";
+            string sqlCustomer = $"SELECT COUNT(*) FROM DANG_NHAP_KHACH_HANG WHERE TenDangNhap = '{tenDangNhap}'";
+
             try
             {
-                DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);
-                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                DataSet dsEmployee = db.ExecuteQueryDataSet(sqlEmployee, CommandType.Text);
+                if (dsEmployee != null && dsEmployee.Tables.Count > 0 && dsEmployee.Tables[0].Rows.Count > 0 && Convert.ToInt32(dsEmployee.Tables[0].Rows[0][0]) > 0)
                 {
-                    return Convert.ToInt32(ds.Tables[0].Rows[0][0]) > 0;
+                    return true;
+                }
+
+                DataSet dsCustomer = db.ExecuteQueryDataSet(sqlCustomer, CommandType.Text);
+                if (dsCustomer != null && dsCustomer.Tables.Count > 0 && dsCustomer.Tables[0].Rows.Count > 0 && Convert.ToInt32(dsCustomer.Tables[0].Rows[0][0]) > 0)
+                {
+                    return true;
                 }
                 return false;
             }
@@ -55,18 +76,27 @@ namespace QLBanHang_3Tang.BS_layer
             }
         }
 
-        // Phương thức thêm tài khoản vào bảng DANG_NHAP
-        public bool ThemTaiKhoan(string tenDangNhap, string matKhau, string loaiTaiKhoan, string maNhanVien, string sdtKhachHang, ref string error)
+        // Phương thức thêm tài khoản vào bảng DANG_NHAP_NHAN_VIEN hoặc DANG_NHAP_KHACH_HANG
+        public bool ThemTaiKhoan(string tenDangNhap, string matKhau, string loaiTaiKhoan, string identifier, ref string error)
         {
-            string maNVValue = string.IsNullOrEmpty(maNhanVien) ? "NULL" : $"'{maNhanVien}'";
-            string sdtKHValue = string.IsNullOrEmpty(sdtKhachHang) ? "NULL" : $"'{sdtKhachHang}'";
-
-            string sql = $"INSERT INTO DANG_NHAP (TenDangNhap, MatKhau, MaNhanVien, SDTKhachHang, LoaiTaiKhoan) VALUES ('{tenDangNhap}', '{matKhau}', {maNVValue}, {sdtKHValue}, '{loaiTaiKhoan}')";
+            string sql = "";
+            if (loaiTaiKhoan == "Employee")
+            {
+                sql = $"INSERT INTO DANG_NHAP_NHAN_VIEN (TenDangNhap, MatKhau, MaNhanVien) VALUES ('{tenDangNhap}', '{matKhau}', '{identifier}')";
+            }
+            else if (loaiTaiKhoan == "Customer")
+            {
+                sql = $"INSERT INTO DANG_NHAP_KHACH_HANG (TenDangNhap, MatKhau, SDTKhachHang) VALUES ('{tenDangNhap}', '{matKhau}', '{identifier}')";
+            }
+            else
+            {
+                error = "Loại tài khoản không hợp lệ.";
+                return false;
+            }
             return db.MyExecuteNonQuery(sql, CommandType.Text, ref error);
         }
 
         // Phương thức thêm Nhân viên vào bảng NHAN_VIEN
-        // Cần truyền đủ thông tin để tạo nhân viên mới
         public bool ThemNhanVien(string maNhanVien, string hoTenNV, string sdtNV, ref string error)
         {
             string sql = $"INSERT INTO NHAN_VIEN (MaNhanVien, HoTenNV, SdtNV) VALUES ('{maNhanVien}', N'{hoTenNV}', '{sdtNV}')";
@@ -74,7 +104,6 @@ namespace QLBanHang_3Tang.BS_layer
         }
 
         // Phương thức thêm Khách hàng vào bảng KHACH_HANG
-        // Cần truyền đủ thông tin để tạo khách hàng mới
         public bool ThemKhachHang(string sdtKhachHang, string tenKH, DateTime? ngaySinh, ref string error)
         {
             string ngaySinhStr = ngaySinh.HasValue ? $"'{ngaySinh.Value.ToString("yyyy-MM-dd")}'" : "NULL";
@@ -85,7 +114,7 @@ namespace QLBanHang_3Tang.BS_layer
         // Phương thức lấy ID của người dùng sau khi đăng nhập (nếu cần)
         public string LayMaNhanVienTuTenDangNhap(string tenDangNhap, ref string error)
         {
-            string sql = $"SELECT MaNhanVien FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}' AND LoaiTaiKhoan = 'Employee'";
+            string sql = $"SELECT MaNhanVien FROM DANG_NHAP_NHAN_VIEN WHERE TenDangNhap = '{tenDangNhap}'";
             try
             {
                 DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);
@@ -104,7 +133,7 @@ namespace QLBanHang_3Tang.BS_layer
 
         public string LaySDTKhachHangTuTenDangNhap(string tenDangNhap, ref string error)
         {
-            string sql = $"SELECT SDTKhachHang FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}' AND LoaiTaiKhoan = 'Customer'";
+            string sql = $"SELECT SDTKhachHang FROM DANG_NHAP_KHACH_HANG WHERE TenDangNhap = '{tenDangNhap}'";
             try
             {
                 DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);

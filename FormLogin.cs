@@ -38,11 +38,11 @@ namespace Convenience_Store_Management
 
             if (NhanVienCb.Checked)
             {
-                userRole = "Employee"; // Đổi từ "NhânVien" sang "Employee"
+                userRole = "Employee";
             }
             else if (KhachHangCb.Checked)
             {
-                userRole = "Customer"; // Đổi từ "KhachHang" sang "Customer"
+                userRole = "Customer";
             }
             else
             {
@@ -62,19 +62,17 @@ namespace Convenience_Store_Management
 
                 if (userRole == "Employee")
                 {
-                    // Lấy mã nhân viên để truyền vào FormNhanVien nếu cần
                     string maNhanVien = blTaiKhoan.LayMaNhanVienTuTenDangNhap(username, ref error);
-                    FormNhanVien formNhanVien = new FormNhanVien(); // Có thể truyền maNhanVien vào constructor
+                    FormNhanVien formNhanVien = new FormNhanVien();
                     formNhanVien.Show();
                 }
                 else if (userRole == "Customer")
                 {
-                    // Lấy SĐT khách hàng để truyền vào FormKhachHang nếu cần
                     string sdtKhachHang = blTaiKhoan.LaySDTKhachHangTuTenDangNhap(username, ref error);
-                    FormKhachHang formKhachHang = new FormKhachHang(); // Có thể truyền sdtKhachHang vào constructor
+                    FormKhachHang formKhachHang = new FormKhachHang();
                     formKhachHang.Show();
                 }
-                this.Hide(); // Ẩn form đăng nhập
+                this.Hide();
             }
             else
             {
@@ -87,7 +85,6 @@ namespace Convenience_Store_Management
             Application.Exit();
         }
 
-        // Đảm bảo chỉ một checkbox được chọn
         private void NhanVienCb_CheckedChanged(object sender, EventArgs e)
         {
             if (NhanVienCb.Checked)
@@ -104,11 +101,11 @@ namespace Convenience_Store_Management
             }
         }
 
-        private void button1_Click(object sender, EventArgs e) // Đây là nút "Sign up" của bạn
+        private void button1_Click(object sender, EventArgs e)
         {
             FormReg formReg = new FormReg();
             formReg.Show();
-            this.Hide(); // Ẩn form đăng nhập khi mở form đăng ký
+            this.Hide();
         }
     }
 }
