@@ -39,8 +39,10 @@
             label3 = new Label();
             NhanVienCb = new CheckBox();
             KhachHangCb = new CheckBox();
-            text = new TextBox();
-            label4 = new Label();
+            sdt_text = new TextBox();
+            label = new Label();
+            manv_text = new TextBox();
+            manhanvien_label = new Label();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -98,7 +100,7 @@
             // btnLogin
             // 
             btnLogin.Font = new Font("Franklin Gothic Medium Cond", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnLogin.Location = new Point(122, 367);
+            btnLogin.Location = new Point(122, 400);
             btnLogin.Margin = new Padding(2, 3, 2, 3);
             btnLogin.Name = "btnLogin";
             btnLogin.Size = new Size(109, 39);
@@ -110,7 +112,7 @@
             // btnExit
             // 
             btnExit.Font = new Font("Franklin Gothic Medium Cond", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnExit.Location = new Point(355, 367);
+            btnExit.Location = new Point(355, 400);
             btnExit.Margin = new Padding(2, 3, 2, 3);
             btnExit.Name = "btnExit";
             btnExit.Size = new Size(68, 39);
@@ -163,33 +165,55 @@
             KhachHangCb.UseVisualStyleBackColor = true;
             KhachHangCb.CheckedChanged += KhachHangCb_CheckedChanged;
             // 
-            // text
+            // sdt_text
             // 
-            text.Location = new Point(266, 297);
-            text.Margin = new Padding(2, 3, 2, 3);
-            text.Name = "text";
-            text.Size = new Size(157, 27);
-            text.TabIndex = 13;
+            sdt_text.Location = new Point(266, 297);
+            sdt_text.Margin = new Padding(2, 3, 2, 3);
+            sdt_text.Name = "sdt_text";
+            sdt_text.Size = new Size(157, 27);
+            sdt_text.TabIndex = 13;
             // 
-            // label4
+            // label
             // 
-            label4.AutoSize = true;
-            label4.Font = new Font("Franklin Gothic Medium Cond", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label4.Location = new Point(122, 297);
-            label4.Margin = new Padding(2, 0, 2, 0);
-            label4.Name = "label4";
-            label4.Size = new Size(54, 34);
-            label4.TabIndex = 12;
-            label4.Text = "Text";
-            label4.TextAlign = ContentAlignment.MiddleCenter;
+            label.AutoSize = true;
+            label.Font = new Font("Franklin Gothic Medium Cond", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label.Location = new Point(122, 297);
+            label.Margin = new Padding(2, 0, 2, 0);
+            label.Name = "label";
+            label.Size = new Size(54, 34);
+            label.TabIndex = 12;
+            label.Text = "SDT";
+            label.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // manv_text
+            // 
+            manv_text.Location = new Point(266, 342);
+            manv_text.Margin = new Padding(2, 3, 2, 3);
+            manv_text.Name = "manv_text";
+            manv_text.Size = new Size(157, 27);
+            manv_text.TabIndex = 15;
+            // 
+            // manhanvien_label
+            // 
+            manhanvien_label.AutoSize = true;
+            manhanvien_label.Font = new Font("Franklin Gothic Medium Cond", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            manhanvien_label.Location = new Point(122, 342);
+            manhanvien_label.Margin = new Padding(2, 0, 2, 0);
+            manhanvien_label.Name = "manhanvien_label";
+            manhanvien_label.Size = new Size(78, 34);
+            manhanvien_label.TabIndex = 14;
+            manhanvien_label.Text = "Mã NV";
+            manhanvien_label.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // FormReg
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(745, 433);
-            Controls.Add(text);
-            Controls.Add(label4);
+            ClientSize = new Size(682, 494);
+            Controls.Add(manv_text);
+            Controls.Add(manhanvien_label);
+            Controls.Add(sdt_text);
+            Controls.Add(label);
             Controls.Add(KhachHangCb);
             Controls.Add(NhanVienCb);
             Controls.Add(panel1);
@@ -222,7 +246,9 @@
         private Label label3;
         private CheckBox NhanVienCb;
         private CheckBox KhachHangCb;
-        private TextBox text;
-        private Label label4;
+        private TextBox sdt_text;
+        private Label label;
+        private TextBox manv_text;
+        private Label manhanvien_label;
     }
 }

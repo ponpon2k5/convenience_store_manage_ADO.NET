@@ -15,14 +15,9 @@ namespace Convenience_Store_Management
             txtPwd.PasswordChar = '*'; // Ẩn mật khẩu mặc định
             NhanVienCb.Checked = true; // Đặt lựa chọn mặc định là Nhân viên
 
-            // IMPORTANT:
-            // The current UI (FormReg.Designer.cs) does not contain separate input fields for:
-            // - Employee ID (MaNhanVien) or Phone Number (SdtNV) for employees.
-            // - Customer Name (TenKH) or Date of Birth (NgaySinh) for customers.
-            // - A specific label (like 'label4' mentioned in the request) to dynamically change its text.
-            // The 'txtAccount' is used as the 'TenDangNhap' (username).
-            // For a complete solution, you would need to add these controls in FormReg.Designer.cs
-            // and implement their logic here.
+            // Khởi tạo trạng thái ban đầu của label4 và text TextBox
+            label.Text = "Mã NV:";
+            sdt_text.Text = "";
         }
 
         private void cbShowPwd_CheckedChanged(object sender, EventArgs e)
@@ -42,6 +37,7 @@ namespace Convenience_Store_Management
         {
             string username = txtAccount.Text.Trim(); // This is the 'Account name' (TenDangNhap)
             string password = txtPwd.Text.Trim();
+            string identifier = sdt_text.Text.Trim(); // Lấy giá trị từ text TextBox
             string userRole = "";
             string error = "";
 
@@ -65,6 +61,13 @@ namespace Convenience_Store_Management
                 return;
             }
 
+            // Kiểm tra xem trường định danh (Mã NV / SĐT) có trống không
+            if (string.IsNullOrEmpty(identifier))
+            {
+                MessageBox.Show($"Vui lòng nhập {(userRole == "Employee" ? "Mã NV" : "SĐT")} của bạn.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             if (blTaiKhoan.KiemTraTonTaiTenDangNhap(username, ref error))
             {
                 MessageBox.Show("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -79,24 +82,24 @@ namespace Convenience_Store_Management
             {
                 if (userRole == "Employee")
                 {
-                    // Generate MaNhanVien automatically.
-                    // If you need user input for MaNhanVien, HoTenNV, SdtNV, you must add TextBoxes to the UI.
-                    maNhanVien = "NV" + DateTime.Now.ToString("ddHHmmss");
-                    string hoTenNV = "Nhân Viên Mới"; // Placeholder: Replace with actual input from a TextBox if available.
-                    string sdtNV = "0000000000";      // Placeholder: Replace with actual input from a TextBox if available.
-                                                      // Ensure this phone number is unique and valid for the database.
+                    maNhanVien = identifier; // Sử dụng giá trị từ text TextBox cho Mã NV
+                    string hoTenNV = "Nhân Viên Mới (chưa nhập)"; // Placeholder: Cần thêm TextBox cho Họ Tên NV
 
-                    detailAdded = blTaiKhoan.ThemNhanVien(maNhanVien, hoTenNV, sdtNV, ref error); //
+                    // Tạo một số điện thoại ngẫu nhiên/duy nhất hơn để tránh lỗi trùng lặp
+                    Random rnd = new Random();
+                    string sdtNV = "0" + (rnd.Next(100000000, 999999999)).ToString();
+                    // Hoặc yêu cầu người dùng nhập nếu có TextBox riêng cho SdtNV
+                    // string sdtNV = "0000000000"; // Đây là nguyên nhân lỗi nếu bị trùng
+
+                    detailAdded = blTaiKhoan.ThemNhanVien(maNhanVien, hoTenNV, sdtNV, ref error);
                 }
                 else if (userRole == "Customer")
                 {
-                    // Assuming 'username' is intended to be the customer's phone number (SDTKhachHang).
-                    // If you need a separate input for SDT and username, you must add TextBoxes to the UI.
-                    sdtKhachHang = username;
-                    string tenKH = "Khách Hàng Mới"; // Placeholder: Replace with actual input from a TextBox if available.
-                    DateTime? ngaySinh = null;       // Placeholder: Replace with actual input from a DateTimePicker if available.
+                    sdtKhachHang = identifier; // Sử dụng giá trị từ text TextBox cho SĐT khách hàng
+                    string tenKH = "Khách Hàng Mới (chưa nhập)"; // Placeholder: Cần thêm TextBox cho Tên KH
+                    DateTime? ngaySinh = null;       // Placeholder: Cần thêm DateTimePicker cho Ngày Sinh
 
-                    detailAdded = blTaiKhoan.ThemKhachHang(sdtKhachHang, tenKH, ngaySinh, ref error); //
+                    detailAdded = blTaiKhoan.ThemKhachHang(sdtKhachHang, tenKH, ngaySinh, ref error);
                 }
 
                 if (!detailAdded)
@@ -106,7 +109,7 @@ namespace Convenience_Store_Management
                 }
 
                 // Bước 2: Tạo tài khoản trong bảng DANG_NHAP, liên kết với ID vừa tạo
-                if (blTaiKhoan.ThemTaiKhoan(username, password, userRole, maNhanVien, sdtKhachHang, ref error)) //
+                if (blTaiKhoan.ThemTaiKhoan(username, password, userRole, maNhanVien, sdtKhachHang, ref error))
                 {
                     MessageBox.Show("Đăng ký tài khoản thành công!", "Thành Công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     FormLogin formLogin = new FormLogin();
@@ -115,7 +118,7 @@ namespace Convenience_Store_Management
                 }
                 else
                 {
-                    // Nếu thêm tài khoản thất bại, có thể cần xóa thông tin chi tiết đã thêm (tùy thuộc vào yêu cầu)
+                    // Nếu thêm tài khoản thất bại, có thể cần thêm logic để rollback (xóa) thông tin chi tiết đã thêm trước đó.
                     MessageBox.Show("Đăng ký tài khoản thất bại: " + error, "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -130,12 +133,14 @@ namespace Convenience_Store_Management
             Application.Exit();
         }
 
-        // Đảm bảo chỉ một checkbox được chọn
+        // Đảm bảo chỉ một checkbox được chọn và cập nhật label4
         private void NhanVienCb_CheckedChanged(object sender, EventArgs e)
         {
             if (NhanVienCb.Checked)
             {
                 KhachHangCb.Checked = false;
+                label.Text = "Mã NV:";
+                sdt_text.Text = ""; // Xóa nội dung khi chuyển đổi
             }
         }
 
@@ -144,6 +149,8 @@ namespace Convenience_Store_Management
             if (KhachHangCb.Checked)
             {
                 NhanVienCb.Checked = false;
+                label.Text = "SĐT:";
+                sdt_text.Text = ""; // Xóa nội dung khi chuyển đổi
             }
         }
     }
