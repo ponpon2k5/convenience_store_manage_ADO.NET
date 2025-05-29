@@ -14,13 +14,15 @@ namespace Convenience_Store_Management
             InitializeComponent();
             txtPwd.PasswordChar = '*'; // Ẩn mật khẩu mặc định
             NhanVienCb.Checked = true; // Đặt lựa chọn mặc định là Nhân viên
-            // Thêm các input field cần thiết cho Ngày Sinh, Tên NV/KH, SĐT NV/KH
-            // Ví dụ:
-            // labelTen = new Label() { Text = "Tên:", Location = new Point(122, 280) };
-            // txtTen = new TextBox() { Location = new Point(266, 280), Size = new Size(157, 27) };
-            // this.Controls.Add(labelTen);
-            // this.Controls.Add(txtTen);
-            // ... và các controls khác tương tự
+
+            // IMPORTANT:
+            // The current UI (FormReg.Designer.cs) does not contain separate input fields for:
+            // - Employee ID (MaNhanVien) or Phone Number (SdtNV) for employees.
+            // - Customer Name (TenKH) or Date of Birth (NgaySinh) for customers.
+            // - A specific label (like 'label4' mentioned in the request) to dynamically change its text.
+            // The 'txtAccount' is used as the 'TenDangNhap' (username).
+            // For a complete solution, you would need to add these controls in FormReg.Designer.cs
+            // and implement their logic here.
         }
 
         private void cbShowPwd_CheckedChanged(object sender, EventArgs e)
@@ -38,7 +40,7 @@ namespace Convenience_Store_Management
 
         private void btnLogin_Click(object sender, EventArgs e) // Đây là nút "Sign up" của bạn
         {
-            string username = txtAccount.Text.Trim();
+            string username = txtAccount.Text.Trim(); // This is the 'Account name' (TenDangNhap)
             string password = txtPwd.Text.Trim();
             string userRole = "";
             string error = "";
@@ -69,8 +71,6 @@ namespace Convenience_Store_Management
                 return;
             }
 
-            // Để đơn giản hóa, tôi sẽ sử dụng các giá trị placeholder cho các thông tin chi tiết
-            // Trong thực tế, bạn cần thêm các textbox/datetimepicker trên form để lấy các thông tin này
             string maNhanVien = null;
             string sdtKhachHang = null;
             bool detailAdded = false;
@@ -79,26 +79,24 @@ namespace Convenience_Store_Management
             {
                 if (userRole == "Employee")
                 {
-                    // Tạo MaNhanVien tự động hoặc lấy từ input (nếu có)
-                    // Ví dụ: NV + timestamp rút gọn
+                    // Generate MaNhanVien automatically.
+                    // If you need user input for MaNhanVien, HoTenNV, SdtNV, you must add TextBoxes to the UI.
                     maNhanVien = "NV" + DateTime.Now.ToString("ddHHmmss");
-                    // Giả sử có textbox cho TenNhanVien (txtHoTenNV) và SdtNV (txtSdtNV)
-                    // Nếu bạn chưa có, bạn cần thêm chúng vào FormReg.Designer.cs và FormReg.cs
-                    string hoTenNV = "Nhân Viên Mới"; // Thay bằng txtHoTenNV.Text
-                    string sdtNV = "0123456789";      // Thay bằng txtSdtNV.Text (hoặc một số điện thoại duy nhất)
+                    string hoTenNV = "Nhân Viên Mới"; // Placeholder: Replace with actual input from a TextBox if available.
+                    string sdtNV = "0000000000";      // Placeholder: Replace with actual input from a TextBox if available.
+                                                      // Ensure this phone number is unique and valid for the database.
 
-                    detailAdded = blTaiKhoan.ThemNhanVien(maNhanVien, hoTenNV, sdtNV, ref error);
+                    detailAdded = blTaiKhoan.ThemNhanVien(maNhanVien, hoTenNV, sdtNV, ref error); //
                 }
                 else if (userRole == "Customer")
                 {
-                    // Lấy SDT từ username hoặc từ input (nếu có)
-                    // Giả sử có textbox cho TenKH (txtTenKH) và DatePicker cho NgaySinh (dtpNgaySinh)
-                    // Nếu bạn chưa có, bạn cần thêm chúng vào FormReg.Designer.cs và FormReg.cs
-                    sdtKhachHang = username; // Giả sử username là SĐT khách hàng
-                    string tenKH = "Khách Hàng Mới"; // Thay bằng txtTenKH.Text
-                    DateTime? ngaySinh = null;       // Thay bằng dtpNgaySinh.Value
+                    // Assuming 'username' is intended to be the customer's phone number (SDTKhachHang).
+                    // If you need a separate input for SDT and username, you must add TextBoxes to the UI.
+                    sdtKhachHang = username;
+                    string tenKH = "Khách Hàng Mới"; // Placeholder: Replace with actual input from a TextBox if available.
+                    DateTime? ngaySinh = null;       // Placeholder: Replace with actual input from a DateTimePicker if available.
 
-                    detailAdded = blTaiKhoan.ThemKhachHang(sdtKhachHang, tenKH, ngaySinh, ref error);
+                    detailAdded = blTaiKhoan.ThemKhachHang(sdtKhachHang, tenKH, ngaySinh, ref error); //
                 }
 
                 if (!detailAdded)
@@ -108,7 +106,7 @@ namespace Convenience_Store_Management
                 }
 
                 // Bước 2: Tạo tài khoản trong bảng DANG_NHAP, liên kết với ID vừa tạo
-                if (blTaiKhoan.ThemTaiKhoan(username, password, userRole, maNhanVien, sdtKhachHang, ref error))
+                if (blTaiKhoan.ThemTaiKhoan(username, password, userRole, maNhanVien, sdtKhachHang, ref error)) //
                 {
                     MessageBox.Show("Đăng ký tài khoản thành công!", "Thành Công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     FormLogin formLogin = new FormLogin();
