@@ -37,6 +37,8 @@
             btnExit = new Button();
             panel1 = new Panel();
             label3 = new Label();
+            NhanVienCb = new CheckBox();
+            KhachHangCb = new CheckBox();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -94,7 +96,7 @@
             // btnLogin
             // 
             btnLogin.Font = new Font("Franklin Gothic Medium Cond", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnLogin.Location = new Point(122, 298);
+            btnLogin.Location = new Point(122, 318);
             btnLogin.Margin = new Padding(2, 3, 2, 3);
             btnLogin.Name = "btnLogin";
             btnLogin.Size = new Size(109, 39);
@@ -106,7 +108,7 @@
             // btnExit
             // 
             btnExit.Font = new Font("Franklin Gothic Medium Cond", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnExit.Location = new Point(354, 298);
+            btnExit.Location = new Point(355, 318);
             btnExit.Margin = new Padding(2, 3, 2, 3);
             btnExit.Name = "btnExit";
             btnExit.Size = new Size(68, 39);
@@ -137,11 +139,33 @@
             label3.TabIndex = 0;
             label3.Text = "Convenience Store";
             // 
+            // NhanVienCb
+            // 
+            NhanVienCb.AutoSize = true;
+            NhanVienCb.Location = new Point(122, 268);
+            NhanVienCb.Name = "NhanVienCb";
+            NhanVienCb.Size = new Size(97, 24);
+            NhanVienCb.TabIndex = 10;
+            NhanVienCb.Text = "Nhân viên";
+            NhanVienCb.UseVisualStyleBackColor = true;
+            // 
+            // KhachHangCb
+            // 
+            KhachHangCb.AutoSize = true;
+            KhachHangCb.Location = new Point(355, 268);
+            KhachHangCb.Name = "KhachHangCb";
+            KhachHangCb.Size = new Size(111, 24);
+            KhachHangCb.TabIndex = 11;
+            KhachHangCb.Text = "Khách Hàng";
+            KhachHangCb.UseVisualStyleBackColor = true;
+            // 
             // FormReg
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(651, 433);
+            Controls.Add(KhachHangCb);
+            Controls.Add(NhanVienCb);
             Controls.Add(panel1);
             Controls.Add(btnExit);
             Controls.Add(btnLogin);
@@ -170,5 +194,7 @@
         private Button btnExit;
         private Panel panel1;
         private Label label3;
+        private CheckBox NhanVienCb;
+        private CheckBox KhachHangCb;
     }
 }

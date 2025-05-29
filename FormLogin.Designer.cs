@@ -37,6 +37,8 @@
             btnExit = new Button();
             panel1 = new Panel();
             label3 = new Label();
+            NhanVienCb = new CheckBox();
+            KhachHangCb = new CheckBox();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -44,9 +46,10 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Franklin Gothic Medium Cond", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label1.Location = new Point(153, 143);
+            label1.Location = new Point(122, 136);
+            label1.Margin = new Padding(2, 0, 2, 0);
             label1.Name = "label1";
-            label1.Size = new Size(124, 26);
+            label1.Size = new Size(153, 34);
             label1.TabIndex = 0;
             label1.Text = "Account name";
             // 
@@ -54,33 +57,37 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Franklin Gothic Medium Cond", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label2.Location = new Point(153, 209);
+            label2.Location = new Point(122, 199);
+            label2.Margin = new Padding(2, 0, 2, 0);
             label2.Name = "label2";
-            label2.Size = new Size(86, 26);
+            label2.Size = new Size(109, 34);
             label2.TabIndex = 1;
             label2.Text = "Password";
             // 
             // txtAccount
             // 
-            txtAccount.Location = new Point(332, 140);
+            txtAccount.Location = new Point(266, 133);
+            txtAccount.Margin = new Padding(2, 3, 2, 3);
             txtAccount.Name = "txtAccount";
-            txtAccount.Size = new Size(195, 22);
+            txtAccount.Size = new Size(157, 27);
             txtAccount.TabIndex = 2;
             // 
             // txtPwd
             // 
-            txtPwd.Location = new Point(332, 209);
+            txtPwd.Location = new Point(266, 199);
+            txtPwd.Margin = new Padding(2, 3, 2, 3);
             txtPwd.Name = "txtPwd";
-            txtPwd.Size = new Size(195, 22);
+            txtPwd.Size = new Size(157, 27);
             txtPwd.TabIndex = 3;
             // 
             // cbShowPwd
             // 
             cbShowPwd.AutoSize = true;
             cbShowPwd.Font = new Font("Franklin Gothic Medium Cond", 15.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            cbShowPwd.Location = new Point(608, 211);
+            cbShowPwd.Location = new Point(486, 201);
+            cbShowPwd.Margin = new Padding(2, 3, 2, 3);
             cbShowPwd.Name = "cbShowPwd";
-            cbShowPwd.Size = new Size(152, 30);
+            cbShowPwd.Size = new Size(189, 38);
             cbShowPwd.TabIndex = 4;
             cbShowPwd.Text = "Show password";
             cbShowPwd.UseVisualStyleBackColor = true;
@@ -89,9 +96,10 @@
             // btnLogin
             // 
             btnLogin.Font = new Font("Franklin Gothic Medium Cond", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnLogin.Location = new Point(153, 313);
+            btnLogin.Location = new Point(122, 298);
+            btnLogin.Margin = new Padding(2, 3, 2, 3);
             btnLogin.Name = "btnLogin";
-            btnLogin.Size = new Size(88, 28);
+            btnLogin.Size = new Size(70, 37);
             btnLogin.TabIndex = 5;
             btnLogin.Text = "Login";
             btnLogin.UseVisualStyleBackColor = true;
@@ -100,9 +108,10 @@
             // btnExit
             // 
             btnExit.Font = new Font("Franklin Gothic Medium Cond", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnExit.Location = new Point(442, 313);
+            btnExit.Location = new Point(354, 298);
+            btnExit.Margin = new Padding(2, 3, 2, 3);
             btnExit.Name = "btnExit";
-            btnExit.Size = new Size(85, 28);
+            btnExit.Size = new Size(68, 41);
             btnExit.TabIndex = 6;
             btnExit.Text = "Exit";
             btnExit.UseVisualStyleBackColor = true;
@@ -113,26 +122,50 @@
             panel1.BackColor = Color.Red;
             panel1.Controls.Add(label3);
             panel1.Location = new Point(0, -1);
+            panel1.Margin = new Padding(2, 3, 2, 3);
             panel1.Name = "panel1";
-            panel1.Size = new Size(801, 101);
+            panel1.Size = new Size(641, 96);
             panel1.TabIndex = 7;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Font = new Font("ITC Avant Garde Std XLt", 20.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label3.Font = new Font("Microsoft Sans Serif", 20.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label3.ForeColor = SystemColors.ButtonFace;
-            label3.Location = new Point(28, 34);
+            label3.Location = new Point(22, 32);
+            label3.Margin = new Padding(2, 0, 2, 0);
             label3.Name = "label3";
-            label3.Size = new Size(257, 33);
+            label3.Size = new Size(307, 39);
             label3.TabIndex = 0;
             label3.Text = "Convenience Store";
             // 
+            // NhanVienCb
+            // 
+            NhanVienCb.AutoSize = true;
+            NhanVienCb.Location = new Point(122, 258);
+            NhanVienCb.Name = "NhanVienCb";
+            NhanVienCb.Size = new Size(97, 24);
+            NhanVienCb.TabIndex = 11;
+            NhanVienCb.Text = "Nhân viên";
+            NhanVienCb.UseVisualStyleBackColor = true;
+            // 
+            // KhachHangCb
+            // 
+            KhachHangCb.AutoSize = true;
+            KhachHangCb.Location = new Point(354, 258);
+            KhachHangCb.Name = "KhachHangCb";
+            KhachHangCb.Size = new Size(111, 24);
+            KhachHangCb.TabIndex = 12;
+            KhachHangCb.Text = "Khách Hàng";
+            KhachHangCb.UseVisualStyleBackColor = true;
+            // 
             // FormLogin
             // 
-            AutoScaleDimensions = new SizeF(10F, 21F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(814, 455);
+            ClientSize = new Size(651, 433);
+            Controls.Add(KhachHangCb);
+            Controls.Add(NhanVienCb);
             Controls.Add(panel1);
             Controls.Add(btnExit);
             Controls.Add(btnLogin);
@@ -141,6 +174,7 @@
             Controls.Add(txtAccount);
             Controls.Add(label2);
             Controls.Add(label1);
+            Margin = new Padding(2, 3, 2, 3);
             Name = "FormLogin";
             Text = "FormLogin";
             panel1.ResumeLayout(false);
@@ -160,5 +194,7 @@
         private Button btnExit;
         private Panel panel1;
         private Label label3;
+        private CheckBox NhanVienCb;
+        private CheckBox KhachHangCb;
     }
 }
