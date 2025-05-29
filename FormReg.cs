@@ -1,53 +1,70 @@
-﻿// FormReg.cs
-using System;
+﻿using System;
 using System.Windows.Forms;
-using QLBanHang_3Tang.BS_layer; // Đảm bảo namespace này đúng
+using QLBanHang_3Tang.BS_layer; // Ensure this namespace is correct
+using System.Linq; // Added for .All(char.IsDigit)
 
 namespace Convenience_Store_Management
 {
     public partial class FormReg : Form
     {
-        private BLTaiKhoan blTaiKhoan = new BLTaiKhoan(); // Khởi tạo BLL
+        private BLTaiKhoan blTaiKhoan = new BLTaiKhoan(); // Initialize BLL
 
         public FormReg()
         {
             InitializeComponent();
-            txtPwd.PasswordChar = '*'; // Ẩn mật khẩu mặc định
-            NhanVienCb.Checked = true; // Đặt lựa chọn mặc định là Nhân viên
+            txtPwd.PasswordChar = '*'; // Hide password by default
+            NhanVienCb.Checked = true; // Set Employee as the default selected role
 
-            // Khởi tạo trạng thái ban đầu của label và text TextBox
-            label.Text = "Mã NV:";
-            sdt_text.Text = "";
-            manv_text.Visible = true; // Make manv_text visible
-            sdt_text.Visible = false; // Make sdt_text invisible for employee
-            label.Text = "Mã NV:"; // Update label text for employee (this is redundant with manhanvien_label)
-            manhanvien_label.Text = "Mã NV:"; // Update label text for employee
-            manhanvien_label.Visible = true; // Make manhanvien_label visible
-            label.Visible = false; // Make label (for SDT) invisible
+            // Initialize visibility of input fields based on the default selected role
+            UpdateVisibilityBasedOnRole();
+        }
+
+        // Helper method to update visibility of identifier input fields
+        private void UpdateVisibilityBasedOnRole()
+        {
+            if (NhanVienCb.Checked)
+            {
+                manv_text.Visible = true;
+                manhanvien_label.Visible = true;
+                sdt_text.Visible = false;
+                label.Visible = false;
+                manv_text.Text = ""; // Clear text when switching
+                sdt_text.Text = ""; // Clear text when switching
+            }
+            else if (KhachHangCb.Checked)
+            {
+                manv_text.Visible = false;
+                manhanvien_label.Visible = false;
+                sdt_text.Visible = true;
+                label.Visible = true;
+                sdt_text.Text = ""; // Clear text when switching
+                manv_text.Text = ""; // Clear text when switching
+            }
         }
 
         private void cbShowPwd_CheckedChanged(object sender, EventArgs e)
         {
-            // Chuyển đổi hiển thị mật khẩu
+            // Toggle password visibility
             if (cbShowPwd.Checked)
             {
-                txtPwd.PasswordChar = '\0'; // Hiển thị mật khẩu
+                txtPwd.PasswordChar = '\0'; // Show password
             }
             else
             {
-                txtPwd.PasswordChar = '*'; // Ẩn mật khẩu
+                txtPwd.PasswordChar = '*'; // Hide password
             }
         }
 
-        private void btnLogin_Click(object sender, EventArgs e) // Đây là nút "Sign up" của bạn
+        private void btnLogin_Click(object sender, EventArgs e) // This is your "Sign up" button
         {
-            string username = txtAccount.Text.Trim(); // This is the 'Account name' (TenDangNhap)
+            string username = txtAccount.Text.Trim(); // Account name (TenDangNhap)
             string password = txtPwd.Text.Trim();
             string identifier = ""; // This will hold MaNhanVien or SDTKhachHang
             string userRole = "";
             string error = "";
             bool detailAdded = false;
 
+            // Determine user role and corresponding identifier
             if (NhanVienCb.Checked)
             {
                 userRole = "Employee";
@@ -64,20 +81,28 @@ namespace Convenience_Store_Management
                 return;
             }
 
+            // Validate basic inputs
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
                 MessageBox.Show("Vui lòng nhập tên đăng nhập và mật khẩu.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Kiểm tra xem trường định danh (Mã NV / SĐT) có trống không
+            // Validate identifier field
             if (string.IsNullOrEmpty(identifier))
             {
                 MessageBox.Show($"Vui lòng nhập {(userRole == "Employee" ? "Mã NV" : "SĐT")} của bạn.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // Kiểm tra sự tồn tại của tên đăng nhập trước khi thêm chi tiết
+            // Additional validation for customer phone number (assuming it must be 10 digits and numeric)
+            if (userRole == "Customer" && (identifier.Length != 10 || !identifier.All(char.IsDigit)))
+            {
+                MessageBox.Show("Số điện thoại khách hàng phải có đúng 10 chữ số và chỉ chứa số.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Check if username already exists to prevent duplicate registrations
             if (blTaiKhoan.KiemTraTonTaiTenDangNhap(username, ref error))
             {
                 MessageBox.Show("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -86,28 +111,56 @@ namespace Convenience_Store_Management
 
             try
             {
-                // Bước 1: Thêm chi tiết người dùng vào bảng NHAN_VIEN hoặc KHACH_HANG
-                
+                // Step 1: Add user details to NHAN_VIEN or KHACH_HANG table
+                if (userRole == "Employee")
+                {
+                    // Assuming 'username' as a placeholder for the employee's full name.
+                    // The employee's phone number (SdtNV) is not provided in the UI.
+                    // Using a dummy phone number or trying to use MaNhanVien if it's a valid 10-digit number.
+                    string employeeFullName = username; // Placeholder for full name
+                    string employeePhoneNumber = "0123456789"; // Default dummy phone
 
+                    // Attempt to use the identifier (MaNhanVien) as the phone number if it's a valid format.
+                    if (identifier.Length == 10 && identifier.All(char.IsDigit))
+                    {
+                        employeePhoneNumber = identifier;
+                    }
+                    else if (!identifier.All(char.IsDigit))
+                    {
+                        // Inform the user if MaNhanVien is not a valid phone number format.
+                        MessageBox.Show("Mã nhân viên chỉ được chứa số nếu bạn muốn sử dụng nó làm số điện thoại. Số điện thoại tạm thời sẽ là: " + employeePhoneNumber, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+
+                    detailAdded = blTaiKhoan.ThemNhanVien(identifier, employeeFullName, employeePhoneNumber, ref error);
+                }
+                else if (userRole == "Customer")
+                {
+                    // Assuming 'username' as a placeholder for the customer's name.
+                    // Date of birth (NgaySinh) is not provided in the UI, so passing null.
+                    detailAdded = blTaiKhoan.ThemKhachHang(identifier, username, null, ref error);
+                }
+
+                // If adding user details fails, stop the registration process
                 if (!detailAdded)
                 {
                     MessageBox.Show("Không thể thêm thông tin chi tiết người dùng: " + error, "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return; // Dừng lại nếu không thêm được chi tiết
+                    return;
                 }
 
-                // Bước 2: Tạo tài khoản trong bảng DANG_NHAP_NHAN_VIEN hoặc DANG_NHAP_KHACH_HANG
+                // Step 2: Create the login account in DANG_NHAP_NHAN_VIEN or DANG_NHAP_KHACH_HANG
                 if (blTaiKhoan.ThemTaiKhoan(username, password, userRole, identifier, ref error))
                 {
                     MessageBox.Show("Đăng ký tài khoản thành công!", "Thành Công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     FormLogin formLogin = new FormLogin();
                     formLogin.Show();
-                    this.Close(); // Đóng form đăng ký sau khi đăng ký thành công
+                    this.Close(); // Close the registration form after successful registration
                 }
                 else
                 {
-                    // Nếu thêm tài khoản thất bại, cần thêm logic để rollback (xóa) thông tin chi tiết đã thêm trước đó.
-                    MessageBox.Show("Đăng ký tài khoản thất bại: " + error, "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    // TODO: Implement rollback logic here if necessary
+                    // If account creation fails, consider implementing rollback logic here
+                    // (e.g., deleting the user details added in Step 1).
+                    // For now, we will just show the error.
+                    MessageBox.Show("Đăng ký tài khoản thất bại: " + error + "\nBạn có thể cần xóa thông tin chi tiết đã đăng ký nếu không có tài khoản liên kết.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
@@ -121,18 +174,13 @@ namespace Convenience_Store_Management
             Application.Exit();
         }
 
-        // Đảm bảo chỉ một checkbox được chọn và cập nhật hiển thị các trường nhập liệu
+        // Event handlers for checkboxes to ensure only one role is selected and update UI fields
         private void NhanVienCb_CheckedChanged(object sender, EventArgs e)
         {
             if (NhanVienCb.Checked)
             {
                 KhachHangCb.Checked = false;
-                manv_text.Visible = true;
-                manhanvien_label.Visible = true;
-                sdt_text.Visible = false;
-                label.Visible = false;
-                manv_text.Text = "";
-                sdt_text.Text = ""; // Clear text when switching
+                UpdateVisibilityBasedOnRole();
             }
         }
 
@@ -141,12 +189,7 @@ namespace Convenience_Store_Management
             if (KhachHangCb.Checked)
             {
                 NhanVienCb.Checked = false;
-                manv_text.Visible = false;
-                manhanvien_label.Visible = false;
-                sdt_text.Visible = true;
-                label.Visible = true;
-                sdt_text.Text = "";
-                manv_text.Text = ""; // Clear text when switching
+                UpdateVisibilityBasedOnRole();
             }
         }
     }
