@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using QLBanHang_3Tang.BS_layer;
+using Convenience_Store_Management.Helper;
 
 namespace Convenience_Store_Management.GUI
 {
@@ -128,7 +129,7 @@ namespace Convenience_Store_Management.GUI
             }
         }
 
-        private void button1_Click(object sender, EventArgs e) // Đây là nút "Thanh toán"
+        private void button1_Click(object sender, EventArgs e) // This is the "Thanh toán" button
         {
             if (cartTable.Rows.Count == 0)
             {
@@ -139,70 +140,36 @@ namespace Convenience_Store_Management.GUI
             string errorMessage = "";
             bool success = true;
 
-            // Lấy MaNhanVien và SDTKhachHang từ UI hoặc logic của bạn
-            // Ví dụ: Lấy MaNhanVien từ người dùng đang đăng nhập
-            string maNhanVien = "NV001"; // THAY THẾ BẰNG MÃ NHÂN VIÊN THỰC TẾ
-            string sdtKhachHang = null; // Hoặc lấy từ một TextBox nhập SĐT khách hàng nếu có
+            // For customer-initiated checkout, set MaNhanVien to NULL
+            string maNhanVien = null; // Changed from SessionManager.CurrentLoggedInEmployeeId;
 
-            // Bước 1: Tạo hóa đơn bán mới
-            // Tạo mã hóa đơn bán độc nhất (ví dụ: HDB + thời gian hiện tại)
+            // Remove validation for maNhanVien as it's now optional for customer checkouts
+            // if (string.IsNullOrEmpty(maNhanVien))
+            // {
+            //     MessageBox.Show("Không có nhân viên nào đang đăng nhập. Vui lòng đăng nhập với vai trò nhân viên để thực hiện thanh toán.", "Lỗi Thanh Toán", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //     return;
+            // }
+
+            // SDTKhachHang will still come from SessionManager if customer is logged in
+
+            string sdtKhachHang = SessionManager.CurrentLoggedInCustomerSdt;
+
             string maHoaDonBanMoi = "HDB" + DateTime.Now.ToString("yyyyMMddHHmmss");
             DateTime ngayBan = DateTime.Now;
 
-            // Gọi BLL để thêm hóa đơn vào database
-            if (!blHoaDonBan.ThemHoaDonBan(maHoaDonBanMoi, maNhanVien, sdtKhachHang, ngayBan, ref errorMessage))
-            {
-                MessageBox.Show("Lỗi khi tạo hóa đơn: " + errorMessage, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return; // Dừng nếu không tạo được hóa đơn
-            }
-
-            // Bước 2 & 3: Thêm chi tiết hóa đơn và cập nhật tồn kho cho từng sản phẩm
-            foreach (DataRow row in cartTable.Rows)
-            {
-                string maSanPham = row.Field<string>("MaSanPham");
-                string tenSP = row.Field<string>("TenSP");
-                int soLuong = row.Field<int>("SoLuong");
-                decimal giaBan = row.Field<decimal>("Gia");
-                decimal thanhTien = row.Field<decimal>("ThanhTien");
-
-                // Thêm chi tiết bán vào database
-                if (!blHoaDonBan.ThemChiTietBan(maHoaDonBanMoi, maSanPham, soLuong, giaBan, thanhTien, ref errorMessage))
-                {
-                    success = false;
-                    MessageBox.Show($"Lỗi khi thêm chi tiết cho sản phẩm '{tenSP}': {errorMessage}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    // Ở đây, nếu có lỗi, bạn có thể cân nhắc thêm logic để rollback (xóa) hóa đơn và các chi tiết đã thêm trước đó.
-                    break;
-                }
-
-                // Cập nhật số lượng tồn kho (giảm số lượng)
-                // Truyền số âm để giảm số lượng hiện có
-                if (!blHoaDonBan.CapNhatSoLuongHangHoa(maSanPham, -soLuong, ref errorMessage))
-                {
-                    success = false;
-                    MessageBox.Show($"Lỗi khi cập nhật tồn kho cho sản phẩm '{tenSP}': {errorMessage}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    // Tương tự, cân nhắc rollback nếu lỗi ở đây
-                    break;
-                }
-            }
-
-            if (success)
+            if (blHoaDonBan.ProcessSaleTransaction(maHoaDonBanMoi, maNhanVien, sdtKhachHang, cartTable, ref errorMessage))
             {
                 MessageBox.Show("Thanh toán thành công! Giỏ hàng đã được xóa.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                cartTable.Clear(); // Xóa sạch giỏ hàng sau khi thanh toán
-                // RefreshCartDisplay(); // DataTable tự cập nhật DGV
+                cartTable.Clear();
 
-                // QUAN TRỌNG: Cần refresh lại danh sách sản phẩm ở UC_HangHoa_Khach
-                // Để làm điều này, bạn cần truy cập UC_HangHoa_Khach từ Form chính (hoặc một cơ chế quản lý UserControl)
-                // và gọi phương thức LoadHangHoaData() của nó.
-                // Ví dụ: (giả định bạn có tham chiếu đến MainForm)
-                // if (this.ParentForm is MainForm mainForm)
-                // {
-                //     mainForm.RefreshHangHoaUC(); // Bạn sẽ cần tạo phương thức này trong MainForm
-                // }
+                if (this.ParentForm is FormKhachHang mainForm)
+                {
+                    mainForm.RefreshHangHoaUC();
+                }
             }
             else
             {
-                MessageBox.Show("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng kiểm tra lại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Có lỗi xảy ra trong quá trình thanh toán: " + errorMessage, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

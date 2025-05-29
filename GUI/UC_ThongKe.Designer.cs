@@ -186,11 +186,13 @@
             // 
             // UC_ThongKe
             // 
+
             AutoScaleDimensions = new SizeF(10F, 21F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(tabControl1);
             Name = "UC_ThongKe";
             Size = new Size(858, 541);
+            this.Load += new System.EventHandler(this.UC_ThongKe_Load);
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
             tabPage1.PerformLayout();

@@ -18,15 +18,13 @@ namespace QLBanHang_3Tang.BS_layer
         // Method to add a sales invoice (HOA_DON_BAN) - 5 arguments
         public bool ThemHoaDonBan(string maHoaDonBan, string maNhanVien, string sdtKhachHang, DateTime ngayBan, ref string error)
         {
-            string sql;
-            if (string.IsNullOrEmpty(sdtKhachHang))
-            {
-                sql = $"INSERT INTO HOA_DON_BAN (MaHoaDonBan, MaNhanVien, SDTKhachHang, NgayBan) VALUES ('{maHoaDonBan}', '{maNhanVien}', NULL, '{ngayBan.ToString("yyyy-MM-dd")}')";
-            }
-            else
-            {
-                sql = $"INSERT INTO HOA_DON_BAN (MaHoaDonBan, MaNhanVien, SDTKhachHang, NgayBan) VALUES ('{maHoaDonBan}', '{maNhanVien}', '{sdtKhachHang}', '{ngayBan.ToString("yyyy-MM-dd")}')";
-            }
+            // Prepare MaNhanVien for SQL: if C# string is null/empty, use SQL NULL literal
+            string maNhanVienSql = string.IsNullOrEmpty(maNhanVien) ? "NULL" : $"'{maNhanVien.Replace("'", "''")}'"; // Handle single quotes
+            // Prepare SDTKhachHang for SQL: if C# string is null/empty, use SQL NULL literal
+            string sdtKhachHangSql = string.IsNullOrEmpty(sdtKhachHang) ? "NULL" : $"'{sdtKhachHang.Replace("'", "''")}'"; // Handle single quotes
+
+            string sql = $"INSERT INTO HOA_DON_BAN (MaHoaDonBan, MaNhanVien, SDTKhachHang, NgayBan) " +
+                         $"VALUES ('{maHoaDonBan.Replace("'", "''")}', {maNhanVienSql}, {sdtKhachHangSql}, '{ngayBan.ToString("yyyy-MM-dd")}')";
             return db.MyExecuteNonQuery(sql, CommandType.Text, ref error);
         }
 

@@ -1,18 +1,18 @@
 ﻿// DAL/ConnectDB.cs
 using System;
 using System.Data;
-using Microsoft.Data.SqlClient; // Required for SqlTransaction
+using Microsoft.Data.SqlClient;
 
 namespace Convenience_Store_Management.DAL
 {
     public class ConnectDB
     {
-        public readonly string strCon = "Data Source=(local);Initial Catalog=QuanLyBanHang;Integrated Security=True;TrustServerCertificate=True";
+        public readonly string strCon = "Data Source= (local);Initial Catalog=QuanLyBanHang;Integrated Security=True;TrustServerCertificate=True";
 
         public SqlConnection conn = null;
         public SqlCommand comm = null;
         public SqlDataAdapter da = null;
-        public SqlTransaction tran = null; // Add SqlTransaction object here
+        public SqlTransaction tran = null;
 
         public ConnectDB()
         {
@@ -58,72 +58,65 @@ namespace Convenience_Store_Management.DAL
             }
         }
 
-        // Method to begin a transaction
         public void BeginTransaction()
         {
-            OpenConnection(); // Ensure connection is open
+            OpenConnection();
             tran = conn.BeginTransaction();
-            comm.Transaction = tran; // Associate command with the transaction
+            comm.Transaction = tran;
         }
 
-        // Method to commit the transaction
         public void CommitTransaction()
         {
             if (tran != null)
             {
                 tran.Commit();
-                tran = null; // Reset transaction object
+                tran = null;
             }
-            CloseConnection(); // Close connection after commit
+            CloseConnection();
         }
 
-        // Method to rollback the transaction
         public void RollbackTransaction()
         {
             if (tran != null)
             {
                 tran.Rollback();
-                tran = null; // Reset transaction object
+                tran = null;
             }
-            CloseConnection(); // Close connection after rollback
+            CloseConnection();
         }
 
         public DataSet ExecuteQueryDataSet(string strSQL, CommandType ct)
         {
-            // Note: DataAdapter operations implicitly handle connections or require them to be open.
-            // For transaction safety, consider if this method needs to be part of a transaction.
-            // For simple reads, it's usually fine without an explicit transaction here.
-            // If you call this during an active transaction, ensure the connection is passed.
-            if (conn.State == ConnectionState.Open && tran != null)
+            // This method needs to handle its own connection if no transaction is active
+            // and pass the transaction if one IS active.
+            // Simplified: Always use current connection/transaction if exists, otherwise open/close.
+            bool wasClosed = conn.State == ConnectionState.Closed;
+            if (wasClosed && tran == null) // Only open if not already open for a transaction
             {
-                // If there's an active transaction, use it for SELECTs within the transaction scope
+                OpenConnection();
+            }
+
+            try
+            {
                 comm.CommandText = strSQL;
                 comm.CommandType = ct;
-                // comm.Connection and comm.Transaction are already set by BeginTransaction()
+                comm.Connection = conn; // Ensure command uses the shared connection
+                if (tran != null) // Ensure command uses the shared transaction if active
+                {
+                    comm.Transaction = tran;
+                }
                 da = new SqlDataAdapter(comm);
                 DataSet ds = new DataSet();
                 da.Fill(ds);
                 return ds;
             }
-            else
+            catch (SqlException ex)
             {
-                // For non-transactional reads
-                OpenConnection();
-                try
-                {
-                    comm.CommandText = strSQL;
-                    comm.CommandType = ct;
-                    comm.Connection = conn;
-                    da = new SqlDataAdapter(comm);
-                    DataSet ds = new DataSet();
-                    da.Fill(ds);
-                    return ds;
-                }
-                catch (SqlException ex)
-                {
-                    throw new Exception("Lỗi truy vấn dữ liệu: " + ex.Message, ex);
-                }
-                finally
+                throw new Exception("Lỗi truy vấn dữ liệu: " + ex.Message, ex);
+            }
+            finally
+            {
+                if (wasClosed && tran == null) // Only close if we opened it and no transaction is active
                 {
                     CloseConnection();
                 }
@@ -133,13 +126,23 @@ namespace Convenience_Store_Management.DAL
         public bool MyExecuteNonQuery(string strSQL, CommandType ct, ref string error)
         {
             bool f = false;
-            // The connection and transaction state will be managed by Begin/Commit/RollbackTransaction in BLL
-            // No need to open/close connection here if it's part of a transaction
+            // The connection is expected to be open if BeginTransaction was called,
+            // otherwise, it needs to be opened for non-transactional single operations.
+            bool wasClosed = conn.State == ConnectionState.Closed;
+            if (wasClosed && tran == null) // Only open if not already open for a transaction
+            {
+                OpenConnection();
+            }
+
             try
             {
                 comm.CommandText = strSQL;
                 comm.CommandType = ct;
-                // Connection and Transaction are already set if BeginTransaction was called
+                comm.Connection = conn; // Ensure command uses the shared connection
+                if (tran != null) // Ensure command uses the shared transaction if active
+                {
+                    comm.Transaction = tran;
+                }
                 comm.ExecuteNonQuery();
                 f = true;
             }
@@ -151,7 +154,16 @@ namespace Convenience_Store_Management.DAL
             {
                 error = "Lỗi không xác định: " + ex.Message;
             }
-            return f; // Connection remains open, BLL handles commit/rollback and close
+            finally
+            {
+                // Only close the connection if it was originally closed and no transaction is active.
+                // If a transaction is active (tran != null), the BLL's Commit/Rollback will close it.
+                if (wasClosed && tran == null)
+                {
+                    CloseConnection();
+                }
+            }
+            return f;
         }
     }
 }

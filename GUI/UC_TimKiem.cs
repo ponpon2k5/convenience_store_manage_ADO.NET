@@ -2,7 +2,7 @@
 using System;
 using System.Data;
 using System.Windows.Forms;
-using QLBanHang_3Tang.BS_layer; // Ensure this namespace is included
+using QLBanHang_3Tang.BS_layer;
 
 namespace Convenience_Store_Management.GUI
 {
@@ -15,6 +15,19 @@ namespace Convenience_Store_Management.GUI
         public UC_TimKiem()
         {
             InitializeComponent();
+            // Hook up the Load event handler
+            this.Load += new System.EventHandler(this.UC_TimKiem_Load);
+        }
+
+        // NEW: UC_TimKiem_Load event handler to preload data
+        private void UC_TimKiem_Load(object sender, EventArgs e)
+        {
+            // Trigger each search button's click event with null arguments.
+            // This will use the current (empty) textbox values to search,
+            // effectively loading all data due to the LIKE '%%' in the BL queries.
+            btnTimHH_Click(null, null); // Preload all products
+            btnTimHD_Click(null, null); // Preload all invoices
+            btnTimKH_Click(null, null); // Preload all customers
         }
 
         // Event handler for "Tìm kiếm" (Search) button on "Hàng hóa" tab

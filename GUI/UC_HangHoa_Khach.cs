@@ -42,6 +42,10 @@ namespace Convenience_Store_Management.GUI
                     dataGridView1.Columns["SoLuong"].HeaderText = "Số Lượng Tồn";
                 if (dataGridView1.Columns.Contains("Gia"))
                     dataGridView1.Columns["Gia"].HeaderText = "Giá";
+                if (dataGridView1.Columns.Contains("GiaNhap")) // Check if column exists
+                {
+                    dataGridView1.Columns["GiaNhap"].Visible = false; // Hide the column
+                }
 
                 // Định dạng cột Giá
                 if (dataGridView1.Columns.Contains("Gia"))

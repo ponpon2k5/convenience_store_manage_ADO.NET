@@ -2,6 +2,7 @@
 using System;
 using System.Windows.Forms;
 using QLBanHang_3Tang.BS_layer; // Đảm bảo namespace này đúng
+using Convenience_Store_Management.Helper;
 
 namespace Convenience_Store_Management
 {
@@ -63,12 +64,14 @@ namespace Convenience_Store_Management
                 if (userRole == "Employee")
                 {
                     string maNhanVien = blTaiKhoan.LayMaNhanVienTuTenDangNhap(username, ref error);
+                    SessionManager.CurrentLoggedInEmployeeId = maNhanVien; // Store employee ID
                     FormNhanVien formNhanVien = new FormNhanVien();
                     formNhanVien.Show();
                 }
                 else if (userRole == "Customer")
                 {
                     string sdtKhachHang = blTaiKhoan.LaySDTKhachHangTuTenDangNhap(username, ref error);
+                    SessionManager.CurrentLoggedInCustomerSdt = sdtKhachHang; // Store customer SDT
                     FormKhachHang formKhachHang = new FormKhachHang();
                     formKhachHang.Show();
                 }
