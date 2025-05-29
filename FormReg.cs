@@ -1,34 +1,42 @@
-﻿using System;
+﻿// FormReg.cs
+using System;
 using System.Windows.Forms;
-using QLBanHang_3Tang.BS_layer; // Make sure to include your BLL namespace
+using QLBanHang_3Tang.BS_layer; // Đảm bảo namespace này đúng
 
 namespace Convenience_Store_Management
 {
     public partial class FormReg : Form
     {
-        private BLTaiKhoan blTaiKhoan = new BLTaiKhoan(); // Instantiate the BLL
+        private BLTaiKhoan blTaiKhoan = new BLTaiKhoan(); // Khởi tạo BLL
 
         public FormReg()
         {
             InitializeComponent();
-            txtPwd.PasswordChar = '*'; // Hide password by default
-            NhanVienCb.Checked = true; // Set default selection for role
+            txtPwd.PasswordChar = '*'; // Ẩn mật khẩu mặc định
+            NhanVienCb.Checked = true; // Đặt lựa chọn mặc định là Nhân viên
+            // Thêm các input field cần thiết cho Ngày Sinh, Tên NV/KH, SĐT NV/KH
+            // Ví dụ:
+            // labelTen = new Label() { Text = "Tên:", Location = new Point(122, 280) };
+            // txtTen = new TextBox() { Location = new Point(266, 280), Size = new Size(157, 27) };
+            // this.Controls.Add(labelTen);
+            // this.Controls.Add(txtTen);
+            // ... và các controls khác tương tự
         }
 
         private void cbShowPwd_CheckedChanged(object sender, EventArgs e)
         {
-            // Toggle password visibility
+            // Chuyển đổi hiển thị mật khẩu
             if (cbShowPwd.Checked)
             {
-                txtPwd.PasswordChar = '\0'; // Show password
+                txtPwd.PasswordChar = '\0'; // Hiển thị mật khẩu
             }
             else
             {
-                txtPwd.PasswordChar = '*'; // Hide password
+                txtPwd.PasswordChar = '*'; // Ẩn mật khẩu
             }
         }
 
-        private void btnLogin_Click(object sender, EventArgs e) // This is the "Sign up" button
+        private void btnLogin_Click(object sender, EventArgs e) // Đây là nút "Sign up" của bạn
         {
             string username = txtAccount.Text.Trim();
             string password = txtPwd.Text.Trim();
@@ -37,11 +45,11 @@ namespace Convenience_Store_Management
 
             if (NhanVienCb.Checked)
             {
-                userRole = "NhanVien";
+                userRole = "Employee"; // Đổi từ "NhânVien" sang "Employee" để khớp với DB
             }
             else if (KhachHangCb.Checked)
             {
-                userRole = "KhachHang";
+                userRole = "Customer"; // Đổi từ "KhachHang" sang "Customer" để khớp với DB
             }
             else
             {
@@ -61,45 +69,61 @@ namespace Convenience_Store_Management
                 return;
             }
 
-            // Step 1: Create the account in TaiKhoan table
-            if (blTaiKhoan.ThemTaiKhoan(username, password, userRole, ref error))
+            // Để đơn giản hóa, tôi sẽ sử dụng các giá trị placeholder cho các thông tin chi tiết
+            // Trong thực tế, bạn cần thêm các textbox/datetimepicker trên form để lấy các thông tin này
+            string maNhanVien = null;
+            string sdtKhachHang = null;
+            bool detailAdded = false;
+
+            try
             {
-                // Step 2: If account creation is successful, add details to specific role table
-                bool detailAdded = false;
-                if (userRole == "NhanVien")
+                if (userRole == "Employee")
                 {
-                    // For simplicity, generate a simple employee ID or prompt for it
-                    string maNhanVien = "NV" + DateTime.Now.ToString("yyyyMMddHHmmss").Substring(0, 8); // Example ID
-                    // You might want to collect more details like TenNhanVien, NgaySinh, GioiTinh, DiaChi, SoDienThoai
-                    // For now, using placeholders or empty strings
-                    detailAdded = blTaiKhoan.ThemNhanVien(maNhanVien, username, "New Employee", null, "", "", "", ref error);
+                    // Tạo MaNhanVien tự động hoặc lấy từ input (nếu có)
+                    // Ví dụ: NV + timestamp rút gọn
+                    maNhanVien = "NV" + DateTime.Now.ToString("ddHHmmss");
+                    // Giả sử có textbox cho TenNhanVien (txtHoTenNV) và SdtNV (txtSdtNV)
+                    // Nếu bạn chưa có, bạn cần thêm chúng vào FormReg.Designer.cs và FormReg.cs
+                    string hoTenNV = "Nhân Viên Mới"; // Thay bằng txtHoTenNV.Text
+                    string sdtNV = "0123456789";      // Thay bằng txtSdtNV.Text (hoặc một số điện thoại duy nhất)
+
+                    detailAdded = blTaiKhoan.ThemNhanVien(maNhanVien, hoTenNV, sdtNV, ref error);
                 }
-                else if (userRole == "KhachHang")
+                else if (userRole == "Customer")
                 {
-                    // For customer, assume username is the phone number for simplicity, or prompt for SDT
-                    // In a real app, you'd likely have a separate input for SDT
-                    string sdtKhachHang = username; // Assuming username is phone number for customer registration
-                    detailAdded = blTaiKhoan.ThemKhachHang(sdtKhachHang, username, "New Customer", "", ref error);
+                    // Lấy SDT từ username hoặc từ input (nếu có)
+                    // Giả sử có textbox cho TenKH (txtTenKH) và DatePicker cho NgaySinh (dtpNgaySinh)
+                    // Nếu bạn chưa có, bạn cần thêm chúng vào FormReg.Designer.cs và FormReg.cs
+                    sdtKhachHang = username; // Giả sử username là SĐT khách hàng
+                    string tenKH = "Khách Hàng Mới"; // Thay bằng txtTenKH.Text
+                    DateTime? ngaySinh = null;       // Thay bằng dtpNgaySinh.Value
+
+                    detailAdded = blTaiKhoan.ThemKhachHang(sdtKhachHang, tenKH, ngaySinh, ref error);
                 }
 
-                if (detailAdded)
+                if (!detailAdded)
                 {
-                    MessageBox.Show("Đăng ký thành công!", "Thành Công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Không thể thêm thông tin chi tiết người dùng: " + error, "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return; // Dừng lại nếu không thêm được chi tiết
+                }
+
+                // Bước 2: Tạo tài khoản trong bảng DANG_NHAP, liên kết với ID vừa tạo
+                if (blTaiKhoan.ThemTaiKhoan(username, password, userRole, maNhanVien, sdtKhachHang, ref error))
+                {
+                    MessageBox.Show("Đăng ký tài khoản thành công!", "Thành Công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     FormLogin formLogin = new FormLogin();
                     formLogin.Show();
-                    this.Close(); // Close registration form after successful registration
+                    this.Close(); // Đóng form đăng ký sau khi đăng ký thành công
                 }
                 else
                 {
-                    // If detail addition fails, you might want to rollback the TaiKhoan creation
-                    // This requires a transaction or a separate deletion method in BLL/DAL.
-                    // For now, just show the error.
-                    MessageBox.Show("Đăng ký tài khoản thành công nhưng không thể thêm thông tin chi tiết: " + error, "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Nếu thêm tài khoản thất bại, có thể cần xóa thông tin chi tiết đã thêm (tùy thuộc vào yêu cầu)
+                    MessageBox.Show("Đăng ký tài khoản thất bại: " + error, "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Đăng ký thất bại: " + error, "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi trong quá trình đăng ký: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -108,7 +132,7 @@ namespace Convenience_Store_Management
             Application.Exit();
         }
 
-        // Add event handlers for checkboxes to ensure only one is selected
+        // Đảm bảo chỉ một checkbox được chọn
         private void NhanVienCb_CheckedChanged(object sender, EventArgs e)
         {
             if (NhanVienCb.Checked)

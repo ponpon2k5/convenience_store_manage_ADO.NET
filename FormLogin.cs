@@ -1,30 +1,31 @@
-﻿using System;
+﻿// FormLogin.cs
+using System;
 using System.Windows.Forms;
-using QLBanHang_3Tang.BS_layer; // Make sure to include your BLL namespace
+using QLBanHang_3Tang.BS_layer; // Đảm bảo namespace này đúng
 
 namespace Convenience_Store_Management
 {
     public partial class FormLogin : Form
     {
-        private BLTaiKhoan blTaiKhoan = new BLTaiKhoan(); // Instantiate the BLL
+        private BLTaiKhoan blTaiKhoan = new BLTaiKhoan(); // Khởi tạo BLL
 
         public FormLogin()
         {
             InitializeComponent();
-            txtPwd.PasswordChar = '*'; // Hide password by default
-            NhanVienCb.Checked = true; // Set default selection for role
+            txtPwd.PasswordChar = '*'; // Ẩn mật khẩu mặc định
+            NhanVienCb.Checked = true; // Đặt lựa chọn mặc định
         }
 
         private void cbShowPwd_CheckedChanged(object sender, EventArgs e)
         {
-            // Toggle password visibility
+            // Chuyển đổi hiển thị mật khẩu
             if (cbShowPwd.Checked)
             {
-                txtPwd.PasswordChar = '\0'; // Show password
+                txtPwd.PasswordChar = '\0'; // Hiển thị mật khẩu
             }
             else
             {
-                txtPwd.PasswordChar = '*'; // Hide password
+                txtPwd.PasswordChar = '*'; // Ẩn mật khẩu
             }
         }
 
@@ -37,11 +38,11 @@ namespace Convenience_Store_Management
 
             if (NhanVienCb.Checked)
             {
-                userRole = "NhanVien";
+                userRole = "Employee"; // Đổi từ "NhânVien" sang "Employee"
             }
             else if (KhachHangCb.Checked)
             {
-                userRole = "KhachHang";
+                userRole = "Customer"; // Đổi từ "KhachHang" sang "Customer"
             }
             else
             {
@@ -59,20 +60,21 @@ namespace Convenience_Store_Management
             {
                 MessageBox.Show($"Đăng nhập thành công với vai trò: {userRole}!", "Thành Công", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                if (userRole == "NhanVien")
+                if (userRole == "Employee")
                 {
-                    // You might want to pass the employee ID to the NhanVien form
-                    // For now, just open the form
-                    FormNhanVien formNhanVien = new FormNhanVien();
+                    // Lấy mã nhân viên để truyền vào FormNhanVien nếu cần
+                    string maNhanVien = blTaiKhoan.LayMaNhanVienTuTenDangNhap(username, ref error);
+                    FormNhanVien formNhanVien = new FormNhanVien(); // Có thể truyền maNhanVien vào constructor
                     formNhanVien.Show();
                 }
-                else if (userRole == "KhachHang")
+                else if (userRole == "Customer")
                 {
-                    // You might want to pass the customer ID (phone number) to the KhachHang form
-                    FormKhachHang formKhachHang = new FormKhachHang();
+                    // Lấy SĐT khách hàng để truyền vào FormKhachHang nếu cần
+                    string sdtKhachHang = blTaiKhoan.LaySDTKhachHangTuTenDangNhap(username, ref error);
+                    FormKhachHang formKhachHang = new FormKhachHang(); // Có thể truyền sdtKhachHang vào constructor
                     formKhachHang.Show();
                 }
-                this.Hide(); // Hide the login form
+                this.Hide(); // Ẩn form đăng nhập
             }
             else
             {
@@ -85,7 +87,7 @@ namespace Convenience_Store_Management
             Application.Exit();
         }
 
-        // Add event handlers for checkboxes to ensure only one is selected
+        // Đảm bảo chỉ một checkbox được chọn
         private void NhanVienCb_CheckedChanged(object sender, EventArgs e)
         {
             if (NhanVienCb.Checked)
@@ -102,11 +104,11 @@ namespace Convenience_Store_Management
             }
         }
 
-        private void button1_Click(object sender, EventArgs e) // This is the "Sign up" button
+        private void button1_Click(object sender, EventArgs e) // Đây là nút "Sign up" của bạn
         {
             FormReg formReg = new FormReg();
             formReg.Show();
-            this.Hide(); // Hide the login form when opening registration
+            this.Hide(); // Ẩn form đăng nhập khi mở form đăng ký
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿// BUS/BLTaiKhoan.cs
 using System;
 using System.Data;
-using Convenience_Store_Management.DAL; // Ensure this namespace is correct
+using Convenience_Store_Management.DAL; // Đảm bảo namespace này đúng
 
 namespace QLBanHang_3Tang.BS_layer
 {
@@ -14,9 +14,11 @@ namespace QLBanHang_3Tang.BS_layer
             db = new ConnectDB();
         }
 
+        // Phương thức kiểm tra đăng nhập
         public bool KiemTraDangNhap(string tenDangNhap, string matKhau, string loaiTaiKhoan, ref string error)
         {
-            string sql = $"SELECT COUNT(*) FROM TaiKhoan WHERE TenDangNhap = '{tenDangNhap}' AND MatKhau = '{matKhau}' AND LoaiTaiKhoan = '{loaiTaiKhoan}'";
+            // Kiểm tra trong bảng DANG_NHAP
+            string sql = $"SELECT COUNT(*) FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}' AND MatKhau = '{matKhau}' AND LoaiTaiKhoan = '{loaiTaiKhoan}'";
             try
             {
                 DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);
@@ -33,28 +35,10 @@ namespace QLBanHang_3Tang.BS_layer
             }
         }
 
-        public bool ThemTaiKhoan(string tenDangNhap, string matKhau, string loaiTaiKhoan, ref string error)
-        {
-            string sql = $"INSERT INTO TaiKhoan (TenDangNhap, MatKhau, LoaiTaiKhoan) VALUES ('{tenDangNhap}', '{matKhau}', '{loaiTaiKhoan}')";
-            return db.MyExecuteNonQuery(sql, CommandType.Text, ref error);
-        }
-
-        public bool ThemNhanVien(string maNhanVien, string tenDangNhap, string tenNhanVien, DateTime? ngaySinh, string gioiTinh, string diaChi, string soDienThoai, ref string error)
-        {
-            string ngaySinhStr = ngaySinh.HasValue ? $"'{ngaySinh.Value.ToString("yyyy-MM-dd")}'" : "NULL";
-            string sql = $"INSERT INTO NhanVien (MaNhanVien, TenDangNhap, TenNhanVien, NgaySinh, GioiTinh, DiaChi, SoDienThoai) VALUES ('{maNhanVien}', '{tenDangNhap}', N'{tenNhanVien}', {ngaySinhStr}, N'{gioiTinh}', N'{diaChi}', '{soDienThoai}')";
-            return db.MyExecuteNonQuery(sql, CommandType.Text, ref error);
-        }
-
-        public bool ThemKhachHang(string sdtKhachHang, string tenDangNhap, string tenKhachHang, string diaChi, ref string error)
-        {
-            string sql = $"INSERT INTO KhachHang (SDTKhachHang, TenDangNhap, TenKhachHang, DiaChi) VALUES ('{sdtKhachHang}', '{tenDangNhap}', N'{tenKhachHang}', N'{diaChi}')";
-            return db.MyExecuteNonQuery(sql, CommandType.Text, ref error);
-        }
-
+        // Phương thức kiểm tra tên đăng nhập đã tồn tại chưa
         public bool KiemTraTonTaiTenDangNhap(string tenDangNhap, ref string error)
         {
-            string sql = $"SELECT COUNT(*) FROM TaiKhoan WHERE TenDangNhap = '{tenDangNhap}'";
+            string sql = $"SELECT COUNT(*) FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}'";
             try
             {
                 DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);
@@ -67,17 +51,45 @@ namespace QLBanHang_3Tang.BS_layer
             catch (Exception ex)
             {
                 error = "Lỗi kiểm tra tên đăng nhập tồn tại: " + ex.Message;
-                return true; // Assume exists to prevent duplicate creation on error
+                return true; // Giả định là tồn tại để ngăn chặn tạo trùng lặp khi có lỗi
             }
         }
 
+        // Phương thức thêm tài khoản vào bảng DANG_NHAP
+        public bool ThemTaiKhoan(string tenDangNhap, string matKhau, string loaiTaiKhoan, string maNhanVien, string sdtKhachHang, ref string error)
+        {
+            string maNVValue = string.IsNullOrEmpty(maNhanVien) ? "NULL" : $"'{maNhanVien}'";
+            string sdtKHValue = string.IsNullOrEmpty(sdtKhachHang) ? "NULL" : $"'{sdtKhachHang}'";
+
+            string sql = $"INSERT INTO DANG_NHAP (TenDangNhap, MatKhau, MaNhanVien, SDTKhachHang, LoaiTaiKhoan) VALUES ('{tenDangNhap}', '{matKhau}', {maNVValue}, {sdtKHValue}, '{loaiTaiKhoan}')";
+            return db.MyExecuteNonQuery(sql, CommandType.Text, ref error);
+        }
+
+        // Phương thức thêm Nhân viên vào bảng NHAN_VIEN
+        // Cần truyền đủ thông tin để tạo nhân viên mới
+        public bool ThemNhanVien(string maNhanVien, string hoTenNV, string sdtNV, ref string error)
+        {
+            string sql = $"INSERT INTO NHAN_VIEN (MaNhanVien, HoTenNV, SdtNV) VALUES ('{maNhanVien}', N'{hoTenNV}', '{sdtNV}')";
+            return db.MyExecuteNonQuery(sql, CommandType.Text, ref error);
+        }
+
+        // Phương thức thêm Khách hàng vào bảng KHACH_HANG
+        // Cần truyền đủ thông tin để tạo khách hàng mới
+        public bool ThemKhachHang(string sdtKhachHang, string tenKH, DateTime? ngaySinh, ref string error)
+        {
+            string ngaySinhStr = ngaySinh.HasValue ? $"'{ngaySinh.Value.ToString("yyyy-MM-dd")}'" : "NULL";
+            string sql = $"INSERT INTO KHACH_HANG (SDT, TenKH, NgaySinh) VALUES ('{sdtKhachHang}', N'{tenKH}', {ngaySinhStr})";
+            return db.MyExecuteNonQuery(sql, CommandType.Text, ref error);
+        }
+
+        // Phương thức lấy ID của người dùng sau khi đăng nhập (nếu cần)
         public string LayMaNhanVienTuTenDangNhap(string tenDangNhap, ref string error)
         {
-            string sql = $"SELECT MaNhanVien FROM NhanVien WHERE TenDangNhap = '{tenDangNhap}'";
+            string sql = $"SELECT MaNhanVien FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}' AND LoaiTaiKhoan = 'Employee'";
             try
             {
                 DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);
-                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0 && ds.Tables[0].Rows[0]["MaNhanVien"] != DBNull.Value)
                 {
                     return ds.Tables[0].Rows[0]["MaNhanVien"].ToString();
                 }
@@ -85,7 +97,26 @@ namespace QLBanHang_3Tang.BS_layer
             }
             catch (Exception ex)
             {
-                error = "Lỗi lấy mã nhân viên: " + ex.Message;
+                error = "Lỗi lấy mã nhân viên từ tài khoản: " + ex.Message;
+                return null;
+            }
+        }
+
+        public string LaySDTKhachHangTuTenDangNhap(string tenDangNhap, ref string error)
+        {
+            string sql = $"SELECT SDTKhachHang FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}' AND LoaiTaiKhoan = 'Customer'";
+            try
+            {
+                DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0 && ds.Tables[0].Rows[0]["SDTKhachHang"] != DBNull.Value)
+                {
+                    return ds.Tables[0].Rows[0]["SDTKhachHang"].ToString();
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                error = "Lỗi lấy SĐT khách hàng từ tài khoản: " + ex.Message;
                 return null;
             }
         }
