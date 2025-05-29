@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             btnXoaGioHang = new Button();
-            button1 = new Button();
+            button1 = new Button(); // Đây là nút Thanh toán
             label1 = new Label();
             dgvGioHang = new DataGridView();
             ((System.ComponentModel.ISupportInitialize)dgvGioHang).BeginInit();
@@ -44,6 +44,7 @@
             btnXoaGioHang.TabIndex = 20;
             btnXoaGioHang.Text = "Xóa khỏi giỏ hàng";
             btnXoaGioHang.UseVisualStyleBackColor = true;
+            btnXoaGioHang.Click += btnXoaGioHang_Click; // Gán sự kiện Click
             // 
             // button1
             // 
@@ -54,6 +55,7 @@
             button1.TabIndex = 21;
             button1.Text = "Thanh toán";
             button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click; // Gán sự kiện Click
             // 
             // label1
             // 
