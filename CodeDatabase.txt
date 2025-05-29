@@ -1,0 +1,110 @@
+﻿-- Create the database
+CREATE DATABASE QuanLyBanHang;
+GO
+
+-- Use the newly created database
+USE QuanLyBanHang;
+GO
+
+-- 1. HANG_HOA (Products)
+CREATE TABLE HANG_HOA (
+    MaSanPham VARCHAR(20) NOT NULL,
+    TenSP VARCHAR(100) NOT NULL,
+    SoLuong INT NOT NULL CHECK (SoLuong >= 0),
+    Gia DECIMAL(18, 2) NOT NULL CHECK (Gia > 0), -- Price per unit
+    CONSTRAINT pk_HangHoa PRIMARY KEY (MaSanPham)
+);
+GO
+
+-- 2. KHACH_HANG (Customers)
+CREATE TABLE KHACH_HANG (
+    SDT VARCHAR(15) NOT NULL CHECK (LEN(SDT) = 10), -- Phone number (used as primary key)
+    TenKH VARCHAR(100) NOT NULL,
+    NgaySinh DATE NULL CHECK (NgaySinh <= GETDATE()), -- Date of birth, cannot be in the future
+    CONSTRAINT pk_KhachHang PRIMARY KEY (SDT),
+    CONSTRAINT uq_KhachHang_SDT UNIQUE (SDT) -- Ensure phone number is unique
+);
+GO
+
+-- 3. NHAN_VIEN (Employees)
+CREATE TABLE NHAN_VIEN (
+    MaNhanVien VARCHAR(20) NOT NULL,
+    HoTenNV VARCHAR(100) NOT NULL,
+    SdtNV VARCHAR(15) NOT NULL CHECK (LEN(SdtNV) = 10), -- Employee phone number
+    CONSTRAINT pk_NhanVien PRIMARY KEY (MaNhanVien),
+    CONSTRAINT uq_NhanVien UNIQUE (SdtNV) -- Ensure employee phone number is unique
+);
+GO
+
+-- 4. HOA_DON_BAN (Sales Invoices)
+CREATE TABLE HOA_DON_BAN (
+    MaHoaDonBan VARCHAR(20) NOT NULL,
+    MaNhanVien VARCHAR(20) NOT NULL, -- Employee who created the invoice
+    SDTKhachHang VARCHAR(15) NULL,   -- Customer's phone number (nullable for walk-in customers)
+    NgayBan DATE NOT NULL CHECK (NgayBan <= GETDATE()), -- Sale date, cannot be in the future
+    CONSTRAINT pk_HoaDonBan PRIMARY KEY (MaHoaDonBan),
+    CONSTRAINT fk_HoaDonBan_MaNhanVien FOREIGN KEY (MaNhanVien) REFERENCES NHAN_VIEN (MaNhanVien),
+    CONSTRAINT fk_HoaDonBan_SDT FOREIGN KEY (SDTKhachHang) REFERENCES KHACH_HANG (SDT)
+);
+GO
+
+-- 5. CHI_TIET_BAN (Sales Invoice Details)
+CREATE TABLE CHI_TIET_BAN (
+    MaHoaDonBan VARCHAR(20) NOT NULL,
+    MaSanPham VARCHAR(20) NOT NULL,
+    SoLuong INT NOT NULL CHECK (SoLuong > 0), -- Quantity sold
+    GiaBan DECIMAL(18, 2) NOT NULL CHECK (GiaBan > 0), -- Selling price per unit at the time of sale
+    ThanhTien DECIMAL(18, 2) NOT NULL, -- Total amount for this item (SoLuong * GiaBan)
+    CONSTRAINT pk_ChiTietBan PRIMARY KEY (MaHoaDonBan, MaSanPham),
+    CONSTRAINT fk_ChiTietBan_MaSanPham FOREIGN KEY (MaSanPham) REFERENCES HANG_HOA (MaSanPham),
+    CONSTRAINT fk_ChiTietBan_MaHoaDonBan FOREIGN KEY (MaHoaDonBan) REFERENCES HOA_DON_BAN (MaHoaDonBan)
+);
+GO
+
+-- 6. HOA_DON_NHAP (Purchase Invoices)
+CREATE TABLE HOA_DON_NHAP (
+    MaHoaDonNhap VARCHAR(20) NOT NULL,
+    MaNhanVien VARCHAR(20) NOT NULL, -- Employee who recorded the purchase
+    NgayNhap DATE NOT NULL CHECK (NgayNhap <= GETDATE()), -- Purchase date, cannot be in the future
+    CONSTRAINT pk_HoaDonNhap PRIMARY KEY (MaHoaDonNhap),
+    CONSTRAINT fk_HoaDonNhap_MaNhanVien FOREIGN KEY (MaNhanVien) REFERENCES NHAN_VIEN (MaNhanVien)
+);
+GO
+
+-- 7. CHI_TIET_NHAP (Purchase Invoice Details)
+CREATE TABLE CHI_TIET_NHAP (
+    MaHoaDonNhap VARCHAR(20) NOT NULL,
+    MaSanPham VARCHAR(20) NOT NULL,
+    SoLuong INT NOT NULL CHECK (SoLuong > 0), -- Quantity purchased
+    GiaNhap DECIMAL(18, 2) NOT NULL CHECK (GiaNhap > 0), -- Purchase price per unit at the time of purchase
+    ThanhTien DECIMAL(18, 2) NOT NULL, -- Total amount for this item (SoLuong * GiaNhap)
+    CONSTRAINT pk_ChiTietNhap PRIMARY KEY (MaHoaDonNhap, MaSanPham),
+    CONSTRAINT fk_ChiTietNhap_MaSanPham FOREIGN KEY (MaSanPham) REFERENCES HANG_HOA (MaSanPham),
+    CONSTRAINT fk_ChiTietNhap_MaHoaDonNhap FOREIGN KEY (MaHoaDonNhap) REFERENCES HOA_DON_NHAP (MaHoaDonNhap)
+);
+GO
+
+-- 8. DANG_NHAP (Login Accounts)
+-- This table combines login information for both employees and customers.
+-- It uses nullable foreign keys and a CHECK constraint to ensure that
+-- each login is associated with exactly one type of user (Employee or Customer).
+CREATE TABLE DANG_NHAP (
+    TenDangNhap VARCHAR(50) NOT NULL PRIMARY KEY,
+    MatKhau VARCHAR(255) NOT NULL CHECK (LEN(MatKhau) >= 6),
+    MaNhanVien VARCHAR(20) NULL,           -- Nullable: Employee ID if LoaiTaiKhoan is 'Employee'
+    SDTKhachHang VARCHAR(15) NULL,         -- Nullable: Customer Phone if LoaiTaiKhoan is 'Customer'
+    LoaiTaiKhoan VARCHAR(10) NOT NULL CHECK (LoaiTaiKhoan IN ('Employee', 'Customer')), -- Type of account
+    CONSTRAINT CHK_One_UserType_NotNull CHECK (
+        (MaNhanVien IS NOT NULL AND SDTKhachHang IS NULL AND LoaiTaiKhoan = 'Employee') OR
+        (MaNhanVien IS NULL AND SDTKhachHang IS NOT NULL AND LoaiTaiKhoan = 'Customer')
+    ),
+    CONSTRAINT fk_DangNhap_MaNhanVien FOREIGN KEY (MaNhanVien) REFERENCES NHAN_VIEN (MaNhanVien),
+    CONSTRAINT fk_DangNhap_SDTKhachHang FOREIGN KEY (SDTKhachHang) REFERENCES KHACH_HANG (SDT)
+);
+GO
+
+-- Example of how to retrieve an employee's phone number from DANG_NHAP:
+-- SELECT dn.TenDangNhap, nv.SdtNV
+-- FROM DANG_NHAP dn
+-- JOIN NHAN_VIEN nv ON dn.MaNhanVien = nv.MaNhanVien
+-- WHERE dn.LoaiTaiKhoan = 'Employee';

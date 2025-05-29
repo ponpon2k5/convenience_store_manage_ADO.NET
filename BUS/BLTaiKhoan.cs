@@ -20,11 +20,13 @@ namespace QLBanHang_3Tang.BS_layer
             string sql = "";
             if (loaiTaiKhoan == "Employee")
             {
-                sql = $"SELECT COUNT(*) FROM DANG_NHAP_NHAN_VIEN WHERE TenDangNhap = '{tenDangNhap}' AND MatKhau = '{matKhau}'";
+                // Query the DANG_NHAP table for employee login
+                sql = $"SELECT COUNT(*) FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}' AND MatKhau = '{matKhau}' AND LoaiTaiKhoan = 'Employee'";
             }
             else if (loaiTaiKhoan == "Customer")
             {
-                sql = $"SELECT COUNT(*) FROM DANG_NHAP_KHACH_HANG WHERE TenDangNhap = '{tenDangNhap}' AND MatKhau = '{matKhau}'";
+                // Query the DANG_NHAP table for customer login
+                sql = $"SELECT COUNT(*) FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}' AND MatKhau = '{matKhau}' AND LoaiTaiKhoan = 'Customer'";
             }
             else
             {
@@ -48,24 +50,18 @@ namespace QLBanHang_3Tang.BS_layer
             }
         }
 
-        // Phương thức kiểm tra tên đăng nhập đã tồn tại chưa (trong cả 2 bảng)
+        // Phương thức kiểm tra tên đăng nhập đã tồn tại chưa (trong bảng DANG_NHAP)
         public bool KiemTraTonTaiTenDangNhap(string tenDangNhap, ref string error)
         {
-            string sqlEmployee = $"SELECT COUNT(*) FROM DANG_NHAP_NHAN_VIEN WHERE TenDangNhap = '{tenDangNhap}'";
-            string sqlCustomer = $"SELECT COUNT(*) FROM DANG_NHAP_KHACH_HANG WHERE TenDangNhap = '{tenDangNhap}'";
+            // Check existence in the single DANG_NHAP table
+            string sql = $"SELECT COUNT(*) FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}'";
 
             try
             {
-                DataSet dsEmployee = db.ExecuteQueryDataSet(sqlEmployee, CommandType.Text);
-                if (dsEmployee != null && dsEmployee.Tables.Count > 0 && dsEmployee.Tables[0].Rows.Count > 0 && Convert.ToInt32(dsEmployee.Tables[0].Rows[0][0]) > 0)
+                DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
                 {
-                    return true;
-                }
-
-                DataSet dsCustomer = db.ExecuteQueryDataSet(sqlCustomer, CommandType.Text);
-                if (dsCustomer != null && dsCustomer.Tables.Count > 0 && dsCustomer.Tables[0].Rows.Count > 0 && Convert.ToInt32(dsCustomer.Tables[0].Rows[0][0]) > 0)
-                {
-                    return true;
+                    return Convert.ToInt32(ds.Tables[0].Rows[0][0]) > 0;
                 }
                 return false;
             }
@@ -76,23 +72,28 @@ namespace QLBanHang_3Tang.BS_layer
             }
         }
 
-        // Phương thức thêm tài khoản vào bảng DANG_NHAP_NHAN_VIEN hoặc DANG_NHAP_KHACH_HANG
+        // Phương thức thêm tài khoản vào bảng DANG_NHAP
         public bool ThemTaiKhoan(string tenDangNhap, string matKhau, string loaiTaiKhoan, string identifier, ref string error)
         {
             string sql = "";
+            string maNhanVienParam = "NULL";
+            string sdtKhachHangParam = "NULL";
+
             if (loaiTaiKhoan == "Employee")
             {
-                sql = $"INSERT INTO DANG_NHAP_NHAN_VIEN (TenDangNhap, MatKhau, MaNhanVien) VALUES ('{tenDangNhap}', '{matKhau}', '{identifier}')";
+                maNhanVienParam = $"'{identifier}'"; // identifier is MaNhanVien for Employee
             }
             else if (loaiTaiKhoan == "Customer")
             {
-                sql = $"INSERT INTO DANG_NHAP_KHACH_HANG (TenDangNhap, MatKhau, SDTKhachHang) VALUES ('{tenDangNhap}', '{matKhau}', '{identifier}')";
+                sdtKhachHangParam = $"'{identifier}'"; // identifier is SDTKhachHang for Customer
             }
             else
             {
                 error = "Loại tài khoản không hợp lệ.";
                 return false;
             }
+            // Insert into the single DANG_NHAP table
+            sql = $"INSERT INTO DANG_NHAP (TenDangNhap, MatKhau, MaNhanVien, SDTKhachHang, LoaiTaiKhoan) VALUES ('{tenDangNhap}', '{matKhau}', {maNhanVienParam}, {sdtKhachHangParam}, '{loaiTaiKhoan}')";
             return db.MyExecuteNonQuery(sql, CommandType.Text, ref error);
         }
 
@@ -114,7 +115,8 @@ namespace QLBanHang_3Tang.BS_layer
         // Phương thức lấy ID của người dùng sau khi đăng nhập (nếu cần)
         public string LayMaNhanVienTuTenDangNhap(string tenDangNhap, ref string error)
         {
-            string sql = $"SELECT MaNhanVien FROM DANG_NHAP_NHAN_VIEN WHERE TenDangNhap = '{tenDangNhap}'";
+            // Select MaNhanVien from DANG_NHAP for Employee type
+            string sql = $"SELECT MaNhanVien FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}' AND LoaiTaiKhoan = 'Employee'";
             try
             {
                 DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);
@@ -133,7 +135,8 @@ namespace QLBanHang_3Tang.BS_layer
 
         public string LaySDTKhachHangTuTenDangNhap(string tenDangNhap, ref string error)
         {
-            string sql = $"SELECT SDTKhachHang FROM DANG_NHAP_KHACH_HANG WHERE TenDangNhap = '{tenDangNhap}'";
+            // Select SDTKhachHang from DANG_NHAP for Customer type
+            string sql = $"SELECT SDTKhachHang FROM DANG_NHAP WHERE TenDangNhap = '{tenDangNhap}' AND LoaiTaiKhoan = 'Customer'";
             try
             {
                 DataSet ds = db.ExecuteQueryDataSet(sql, CommandType.Text);

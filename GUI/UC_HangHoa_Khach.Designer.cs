@@ -35,9 +35,9 @@
             soluongText = new TextBox();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
-            // 
+            //
             // dataGridView1
-            // 
+            //
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView1.Location = new Point(0, 113);
             dataGridView1.Margin = new Padding(2, 3, 2, 3);
@@ -45,9 +45,10 @@
             dataGridView1.RowHeadersWidth = 51;
             dataGridView1.Size = new Size(681, 399);
             dataGridView1.TabIndex = 0;
-            // 
+            this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick); // THÊM DÒNG NÀY
+            //
             // label3
-            // 
+            //
             label3.AutoSize = true;
             label3.Font = new Font("Sans Serif Collection", 11.9999981F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label3.Location = new Point(4, 26);
@@ -56,9 +57,9 @@
             label3.Size = new Size(125, 68);
             label3.TabIndex = 17;
             label3.Text = "Sản phẩm:";
-            // 
+            //
             // btnThemGioHang
-            // 
+            //
             btnThemGioHang.Font = new Font("Sans Serif Collection", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             btnThemGioHang.Location = new Point(514, 26);
             btnThemGioHang.Margin = new Padding(2, 3, 2, 3);
@@ -68,9 +69,9 @@
             btnThemGioHang.Text = "Thêm vào giỏ hàng";
             btnThemGioHang.UseVisualStyleBackColor = true;
             btnThemGioHang.Click += btnThemGioHang_Click;
-            // 
+            //
             // tensanpham_label
-            // 
+            //
             tensanpham_label.AutoSize = true;
             tensanpham_label.Font = new Font("Sans Serif Collection", 11.9999981F, FontStyle.Regular, GraphicsUnit.Point, 0);
             tensanpham_label.Location = new Point(113, 26);
@@ -79,16 +80,16 @@
             tensanpham_label.Size = new Size(155, 68);
             tensanpham_label.TabIndex = 19;
             tensanpham_label.Text = "Tên sản phẩm";
-            // 
+            //
             // soluongText
-            // 
+            //
             soluongText.Location = new Point(361, 40);
             soluongText.Name = "soluongText";
             soluongText.Size = new Size(104, 27);
             soluongText.TabIndex = 20;
-            // 
+            //
             // UC_HangHoa_Khach
-            // 
+            //
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(soluongText);
