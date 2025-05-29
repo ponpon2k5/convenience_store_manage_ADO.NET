@@ -87,6 +87,7 @@
             btnTimHH.TabIndex = 10;
             btnTimHH.Text = "Tìm kiếm";
             btnTimHH.UseVisualStyleBackColor = true;
+            btnTimHH.Click += btnTimHH_Click;
             // 
             // label5
             // 
@@ -139,6 +140,7 @@
             btnTimHD.TabIndex = 13;
             btnTimHD.Text = "Tìm kiếm";
             btnTimHD.UseVisualStyleBackColor = true;
+            btnTimHD.Click += btnTimHD_Click;
             // 
             // label1
             // 
@@ -191,6 +193,7 @@
             btnTimKH.TabIndex = 13;
             btnTimKH.Text = "Tìm kiếm";
             btnTimKH.UseVisualStyleBackColor = true;
+            btnTimKH.Click += btnTimKH_Click;
             // 
             // label2
             // 

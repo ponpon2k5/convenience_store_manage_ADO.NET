@@ -31,21 +31,23 @@
             label5 = new Label();
             txtMaHD = new TextBox();
             label1 = new Label();
-            textBox1 = new TextBox();
+            txtTenSP = new TextBox();
             label2 = new Label();
             txtSoLuong = new TextBox();
             label3 = new Label();
             txtMaNV = new TextBox();
             dtpNgayBan = new DateTimePicker();
             label4 = new Label();
-            button1 = new Button();
+            btnThemHD = new Button();
+            txtMaSP = new TextBox();
+            label6 = new Label();
             SuspendLayout();
             // 
             // label5
             // 
             label5.AutoSize = true;
             label5.Font = new Font("Sans Serif Collection", 11.9999981F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label5.Location = new Point(106, 88);
+            label5.Location = new Point(106, 20);
             label5.Margin = new Padding(5, 0, 5, 0);
             label5.Name = "label5";
             label5.Size = new Size(156, 39);
@@ -54,7 +56,7 @@
             // 
             // txtMaHD
             // 
-            txtMaHD.Location = new Point(392, 73);
+            txtMaHD.Location = new Point(392, 5);
             txtMaHD.Margin = new Padding(5, 7, 5, 7);
             txtMaHD.Name = "txtMaHD";
             txtMaHD.Size = new Size(342, 54);
@@ -64,20 +66,20 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Sans Serif Collection", 11.9999981F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label1.Location = new Point(106, 156);
+            label1.Location = new Point(106, 88);
             label1.Margin = new Padding(5, 0, 5, 0);
             label1.Name = "label1";
             label1.Size = new Size(187, 39);
             label1.TabIndex = 9;
             label1.Text = "Tên sản phẩm:";
             // 
-            // textBox1
+            // txtTenSP
             // 
-            textBox1.Location = new Point(392, 141);
-            textBox1.Margin = new Padding(5, 7, 5, 7);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(342, 54);
-            textBox1.TabIndex = 8;
+            txtTenSP.Location = new Point(392, 73);
+            txtTenSP.Margin = new Padding(5, 7, 5, 7);
+            txtTenSP.Name = "txtTenSP";
+            txtTenSP.Size = new Size(342, 54);
+            txtTenSP.TabIndex = 8;
             // 
             // label2
             // 
@@ -137,20 +139,42 @@
             label4.TabIndex = 15;
             label4.Text = "Ngày bán:";
             // 
-            // button1
+            // btnThemHD
             // 
-            button1.Location = new Point(618, 473);
-            button1.Name = "button1";
-            button1.Size = new Size(116, 46);
-            button1.TabIndex = 16;
-            button1.Text = "Thêm";
-            button1.UseVisualStyleBackColor = true;
+            btnThemHD.Location = new Point(618, 473);
+            btnThemHD.Name = "btnThemHD";
+            btnThemHD.Size = new Size(116, 46);
+            btnThemHD.TabIndex = 16;
+            btnThemHD.Text = "Thêm";
+            btnThemHD.UseVisualStyleBackColor = true;
+            btnThemHD.Click += button1_Click;
+            // 
+            // txtMaSP
+            // 
+            txtMaSP.Location = new Point(392, 141);
+            txtMaSP.Margin = new Padding(5, 7, 5, 7);
+            txtMaSP.Name = "txtMaSP";
+            txtMaSP.Size = new Size(342, 54);
+            txtMaSP.TabIndex = 17;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Font = new Font("Sans Serif Collection", 11.9999981F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label6.Location = new Point(106, 156);
+            label6.Margin = new Padding(5, 0, 5, 0);
+            label6.Name = "label6";
+            label6.Size = new Size(177, 39);
+            label6.TabIndex = 18;
+            label6.Text = "Mã sản phẩm:";
             // 
             // UC_HoaDon
             // 
             AutoScaleDimensions = new SizeF(18F, 47F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(button1);
+            Controls.Add(label6);
+            Controls.Add(txtMaSP);
+            Controls.Add(btnThemHD);
             Controls.Add(label4);
             Controls.Add(dtpNgayBan);
             Controls.Add(label3);
@@ -158,7 +182,7 @@
             Controls.Add(label2);
             Controls.Add(txtSoLuong);
             Controls.Add(label1);
-            Controls.Add(textBox1);
+            Controls.Add(txtTenSP);
             Controls.Add(label5);
             Controls.Add(txtMaHD);
             Font = new Font("Sans Serif Collection", 14.2499981F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -174,13 +198,15 @@
         private Label label5;
         private TextBox txtMaHD;
         private Label label1;
-        private TextBox textBox1;
+        private TextBox txtTenSP;
         private Label label2;
         private TextBox txtSoLuong;
         private Label label3;
         private TextBox txtMaNV;
         private DateTimePicker dtpNgayBan;
         private Label label4;
-        private Button button1;
+        private Button btnThemHD;
+        private TextBox txtMaSP;
+        private Label label6;
     }
 }
