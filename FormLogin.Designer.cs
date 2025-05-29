@@ -39,6 +39,7 @@
             label3 = new Label();
             NhanVienCb = new CheckBox();
             KhachHangCb = new CheckBox();
+            button1 = new Button();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -96,7 +97,7 @@
             // btnLogin
             // 
             btnLogin.Font = new Font("Franklin Gothic Medium Cond", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnLogin.Location = new Point(122, 298);
+            btnLogin.Location = new Point(108, 326);
             btnLogin.Margin = new Padding(2, 3, 2, 3);
             btnLogin.Name = "btnLogin";
             btnLogin.Size = new Size(70, 37);
@@ -108,7 +109,7 @@
             // btnExit
             // 
             btnExit.Font = new Font("Franklin Gothic Medium Cond", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnExit.Location = new Point(354, 298);
+            btnExit.Location = new Point(486, 324);
             btnExit.Margin = new Padding(2, 3, 2, 3);
             btnExit.Name = "btnExit";
             btnExit.Size = new Size(68, 41);
@@ -159,11 +160,23 @@
             KhachHangCb.Text = "Khách Hàng";
             KhachHangCb.UseVisualStyleBackColor = true;
             // 
+            // button1
+            // 
+            button1.Font = new Font("Franklin Gothic Medium Cond", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            button1.Location = new Point(285, 326);
+            button1.Margin = new Padding(2, 3, 2, 3);
+            button1.Name = "button1";
+            button1.Size = new Size(108, 37);
+            button1.TabIndex = 13;
+            button1.Text = "Sign up";
+            button1.UseVisualStyleBackColor = true;
+            // 
             // FormLogin
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(651, 433);
+            Controls.Add(button1);
             Controls.Add(KhachHangCb);
             Controls.Add(NhanVienCb);
             Controls.Add(panel1);
@@ -196,5 +209,6 @@
         private Label label3;
         private CheckBox NhanVienCb;
         private CheckBox KhachHangCb;
+        private Button button1;
     }
 }
