@@ -26,8 +26,8 @@ namespace Convenience_Store_Management
             {
                 manv_text.Visible = true;
                 manhanvien_label.Visible = true;
-                sdt_text.Visible = false;
-                label.Visible = false;
+                sdt_text.Visible = true; // Employee needs SDT as well
+                label.Visible = true;     // Label for SDT
                 manv_text.Text = ""; // Clear text when switching
                 sdt_text.Text = ""; // Clear text when switching
             }
@@ -59,7 +59,7 @@ namespace Convenience_Store_Management
         {
             string username = txtAccount.Text.Trim(); // Account name (TenDangNhap)
             string password = txtPwd.Text.Trim();
-            string identifier = ""; // This will hold MaNhanVien or SDTKhachHang
+            string identifier = ""; // This will hold MaNhanVien or SDTKhachHang (for DANG_NHAP table)
             string userRole = "";
             string error = "";
             bool detailAdded = false;
@@ -68,12 +68,10 @@ namespace Convenience_Store_Management
             if (NhanVienCb.Checked)
             {
                 userRole = "Employee";
-                identifier = manv_text.Text.Trim(); // Get MaNhanVien from manv_text
             }
             else if (KhachHangCb.Checked)
             {
                 userRole = "Customer";
-                identifier = sdt_text.Text.Trim(); // Get SDTKhachHang from sdt_text
             }
             else
             {
@@ -88,18 +86,41 @@ namespace Convenience_Store_Management
                 return;
             }
 
-            // Validate identifier field
-            if (string.IsNullOrEmpty(identifier))
+            // Validate identifier field(s) based on role
+            if (userRole == "Employee")
             {
-                MessageBox.Show($"Vui lòng nhập {(userRole == "Employee" ? "Mã NV" : "SĐT")} của bạn.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                // Employee needs MaNhanVien and SdtNV
+                if (string.IsNullOrEmpty(manv_text.Text.Trim()))
+                {
+                    MessageBox.Show("Vui lòng nhập Mã NV của bạn.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (string.IsNullOrEmpty(sdt_text.Text.Trim()))
+                {
+                    MessageBox.Show("Vui lòng nhập SĐT của nhân viên.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (sdt_text.Text.Trim().Length != 10 || !sdt_text.Text.Trim().All(char.IsDigit))
+                {
+                    MessageBox.Show("Số điện thoại nhân viên phải có đúng 10 chữ số và chỉ chứa số.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                identifier = manv_text.Text.Trim(); // MaNhanVien is the identifier for DANG_NHAP table
             }
-
-            // Additional validation for customer phone number (assuming it must be 10 digits and numeric)
-            if (userRole == "Customer" && (identifier.Length != 10 || !identifier.All(char.IsDigit)))
+            else if (userRole == "Customer")
             {
-                MessageBox.Show("Số điện thoại khách hàng phải có đúng 10 chữ số và chỉ chứa số.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                // Customer needs only SDTKhachHang
+                if (string.IsNullOrEmpty(sdt_text.Text.Trim()))
+                {
+                    MessageBox.Show("Vui lòng nhập SĐT của khách hàng.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (sdt_text.Text.Trim().Length != 10 || !sdt_text.Text.Trim().All(char.IsDigit))
+                {
+                    MessageBox.Show("Số điện thoại khách hàng phải có đúng 10 chữ số và chỉ chứa số.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                identifier = sdt_text.Text.Trim(); // SDTKhachHang is the identifier for DANG_NHAP table
             }
 
             // Check if username already exists to prevent duplicate registrations
@@ -111,33 +132,26 @@ namespace Convenience_Store_Management
 
             try
             {
-                // Step 1: Add user details to NHAN_VIEN or KHACH_HANG table
+                // Step 1: Add user details to NHAN_VIEN or KHACH_HANG table first
                 if (userRole == "Employee")
                 {
-                    // Assuming 'username' as a placeholder for the employee's full name.
-                    // The employee's phone number (SdtNV) is not provided in the UI.
-                    // Using a dummy phone number or trying to use MaNhanVien if it's a valid 10-digit number.
-                    string employeeFullName = username; // Placeholder for full name
-                    string employeePhoneNumber = "0123456789"; // Default dummy phone
+                    // For employee, use manv_text for MaNhanVien and sdt_text for SdtNV
+                    // Use username as a placeholder for full name if not provided in UI.
+                    string employeeMaNhanVien = manv_text.Text.Trim();
+                    string employeeFullName = username; // Placeholder for HoTenNV
+                    string employeePhoneNumber = sdt_text.Text.Trim();
 
-                    // Attempt to use the identifier (MaNhanVien) as the phone number if it's a valid format.
-                    if (identifier.Length == 10 && identifier.All(char.IsDigit))
-                    {
-                        employeePhoneNumber = identifier;
-                    }
-                    else if (!identifier.All(char.IsDigit))
-                    {
-                        // Inform the user if MaNhanVien is not a valid phone number format.
-                        MessageBox.Show("Mã nhân viên chỉ được chứa số nếu bạn muốn sử dụng nó làm số điện thoại. Số điện thoại tạm thời sẽ là: " + employeePhoneNumber, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-
-                    detailAdded = blTaiKhoan.ThemNhanVien(identifier, employeeFullName, employeePhoneNumber, ref error);
+                    detailAdded = blTaiKhoan.ThemNhanVien(employeeMaNhanVien, employeeFullName, employeePhoneNumber, ref error);
                 }
                 else if (userRole == "Customer")
                 {
-                    // Assuming 'username' as a placeholder for the customer's name.
-                    // Date of birth (NgaySinh) is not provided in the UI, so passing null.
-                    detailAdded = blTaiKhoan.ThemKhachHang(identifier, username, null, ref error);
+                    // For customer, use sdt_text for SDT
+                    // Use username as a placeholder for customer name if not provided in UI.
+                    string customerPhoneNumber = sdt_text.Text.Trim();
+                    string customerName = username; // Placeholder for TenKH
+                    DateTime? ngaySinh = null; // NgaySinh is not provided in the UI.
+
+                    detailAdded = blTaiKhoan.ThemKhachHang(customerPhoneNumber, customerName, ngaySinh, ref error);
                 }
 
                 // If adding user details fails, stop the registration process
@@ -147,7 +161,8 @@ namespace Convenience_Store_Management
                     return;
                 }
 
-                // Step 2: Create the login account in DANG_NHAP_NHAN_VIEN or DANG_NHAP_KHACH_HANG
+                // Step 2: Create the login account in DANG_NHAP table
+                // The 'identifier' variable correctly holds MaNhanVien for Employee or SDTKhachHang for Customer
                 if (blTaiKhoan.ThemTaiKhoan(username, password, userRole, identifier, ref error))
                 {
                     MessageBox.Show("Đăng ký tài khoản thành công!", "Thành Công", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -158,7 +173,7 @@ namespace Convenience_Store_Management
                 else
                 {
                     // If account creation fails, consider implementing rollback logic here
-                    // (e.g., deleting the user details added in Step 1).
+                    // (e.g., deleting the user details added in Step 1 from NHAN_VIEN/KHACH_HANG).
                     // For now, we will just show the error.
                     MessageBox.Show("Đăng ký tài khoản thất bại: " + error + "\nBạn có thể cần xóa thông tin chi tiết đã đăng ký nếu không có tài khoản liên kết.", "Lỗi Đăng Ký", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
