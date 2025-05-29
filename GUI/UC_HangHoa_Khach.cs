@@ -10,7 +10,6 @@ namespace Convenience_Store_Management.GUI
         private BLHangHoa blHangHoa = new BLHangHoa();
 
         // Khai báo một delegate cho sự kiện khi sản phẩm được thêm vào giỏ hàng
-        // Truyền trực tiếp các thông tin cần thiết
         public delegate void AddToCartEventHandler(object sender, string maSanPham, string tenSP, int soLuong, decimal gia);
 
         // Khai báo sự kiện
@@ -19,6 +18,7 @@ namespace Convenience_Store_Management.GUI
         public UC_HangHoa_Khach()
         {
             InitializeComponent();
+            soluongText.Text = "1"; // Mặc định số lượng là 1 khi khởi tạo
         }
 
         private void UC_HangHoa_Khach_Load(object sender, EventArgs e)
@@ -26,7 +26,7 @@ namespace Convenience_Store_Management.GUI
             LoadHangHoaData();
         }
 
-        public void LoadHangHoaData() // Đặt là public để có thể gọi từ bên ngoài khi cần refresh
+        public void LoadHangHoaData()
         {
             try
             {
@@ -46,7 +46,7 @@ namespace Convenience_Store_Management.GUI
                 // Định dạng cột Giá
                 if (dataGridView1.Columns.Contains("Gia"))
                 {
-                    dataGridView1.Columns["Gia"].DefaultCellStyle.Format = "N0"; // Định dạng số không thập phân (ví dụ: 10,000)
+                    dataGridView1.Columns["Gia"].DefaultCellStyle.Format = "N0";
                 }
 
                 // Chặn người dùng chỉnh sửa trực tiếp trên DataGridView
@@ -56,6 +56,17 @@ namespace Convenience_Store_Management.GUI
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi khi tải dữ liệu sản phẩm: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Kiểm tra xem có phải là hàng dữ liệu hợp lệ không (không phải header hay hàng trống)
+            if (e.RowIndex >= 0)
+            {
+                DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+                tensanpham_label.Text = row.Cells["TenSP"].Value.ToString(); // Cập nhật label với tên sản phẩm
+                soluongText.Text = "1"; // Reset số lượng về 1 mỗi khi chọn sản phẩm mới
             }
         }
 
@@ -69,27 +80,26 @@ namespace Convenience_Store_Management.GUI
                 int soLuongTon = Convert.ToInt32(selectedRow.Cells["SoLuong"].Value);
                 decimal gia = Convert.ToDecimal(selectedRow.Cells["Gia"].Value);
 
-                int quantityToAdd = 1; // Mặc định thêm 1 sản phẩm vào giỏ hàng
-
-                if (quantityToAdd <= 0)
+                int quantityToAdd;
+                // Cố gắng phân tích số lượng từ soluongText
+                if (!int.TryParse(soluongText.Text, out quantityToAdd) || quantityToAdd <= 0)
                 {
-                    MessageBox.Show("Số lượng thêm vào phải lớn hơn 0.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Số lượng phải là một số nguyên dương.", "Lỗi nhập liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // Kiểm tra số lượng tồn kho trước khi thêm vào giỏ (trong giỏ hàng tạm thời)
-                // Lưu ý: Đây chỉ là kiểm tra ban đầu, số lượng thực tế sẽ được trừ khi thanh toán.
+                // Kiểm tra số lượng tồn kho trước khi thêm vào giỏ
                 if (quantityToAdd > soLuongTon)
                 {
                     MessageBox.Show($"Sản phẩm '{tenSP}' chỉ còn {soLuongTon} sản phẩm. Không đủ số lượng bạn yêu cầu.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // Kích hoạt sự kiện OnAddToCart, truyền thông tin sản phẩm trực tiếp
+                // Kích hoạt sự kiện OnAddToCart, truyền thông tin sản phẩm
                 OnAddToCart?.Invoke(this, maSanPham, tenSP, quantityToAdd, gia);
 
                 MessageBox.Show($"{quantityToAdd} x '{tenSP}' đã được thêm vào giỏ hàng.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                // KHÔNG LoadHangHoaData() ở đây, vì số lượng tồn kho chỉ được trừ khi thanh toán.
+                // Không LoadHangHoaData() ở đây, vì số lượng tồn kho chỉ được trừ khi thanh toán.
             }
             else
             {
